@@ -62,13 +62,32 @@ public class MyHTTPServer  extends NanoHTTPD {
             StringWriter writer = new StringWriter();
             mustache.execute(writer, context).flush();
 
-            System.out.println("Wczytywanie template: " + writer.toString());
+//            System.out.println("Wczytywanie template: " + writer.toString());
 
-            return newFixedLengthResponse(Response.Status.OK, mime, writer.toString());
+            return newFixedLengthResponse(Response.Status.OK, mime, getTemplate(writer.toString()));
         } catch (IOException e) {
             e.printStackTrace();
             return newFixedLengthResponse("Błąd wczytywania pliku: " + e.getMessage());
         }
+    }
+
+    /**
+     * Load head, footer, etc.
+     */
+    private String getTemplate(String content) throws IOException {
+        InputStream fileStream = context.getAssets().open("template.html");
+        InputStreamReader reader = new InputStreamReader(fileStream, StandardCharsets.UTF_8);
+
+        MustacheFactory mf = new DefaultMustacheFactory();
+        Mustache mustache = mf.compile(reader, "template");
+
+        Map<String, String> context = new HashMap<>();
+        context.put("content", content);
+
+        StringWriter writer = new StringWriter();
+        mustache.execute(writer, context).flush();
+
+        return writer.toString();
     }
 
 }
