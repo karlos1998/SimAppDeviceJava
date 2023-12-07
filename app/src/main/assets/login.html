@@ -20,7 +20,7 @@
 ----------------------- -->
 <head>
 
-    <link rel='shortcut icon' type='image/x-icon' href="favicon.ico" />
+<!--    <link rel='shortcut icon' type='image/x-icon' href="favicon.ico" />-->
 
     <style>
 			*{
@@ -342,7 +342,7 @@
 
     <div class="module">
 
-        <h1>SIM Gateway (ver. {{version.tag}})</h1>
+        <h1>Sim Device Client</h1>
 
         <!-- tutaj jakies head data bylyby spoko -->
 
@@ -351,10 +351,9 @@
         <form class="form" action="login" method="post" enctype="multipart/form-data" autocomplete="off">
             <input type="password" placeholder="password" name="password" required />
 
-            {% if error %}<div class="alert alert-error">{{error}}</div>{% endif %}
+            <div class="alert alert-error">{{error}}</div>
             <input type="submit" value="Zaloguj" name="login" class="btn btn-block btn-primary" />
         </form>
-        {% include 'Includes/footer.html' %}
 
     </div>
 </div>
@@ -376,6 +375,6 @@
 </style>
 
 <footer>
-    Created by <a target=_blank href="{{author_page}}">Karol Sójka</a>, from Poland.
+    Created by <a target=_blank href="https://letscode.it">Karol Sójka</a>, from Poland.
 </footer>
 </html>

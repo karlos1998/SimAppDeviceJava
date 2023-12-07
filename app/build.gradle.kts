@@ -37,4 +37,6 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     implementation("org.nanohttpd:nanohttpd:2.3.1")
+    implementation("com.github.spullara.mustache.java:compiler:0.8.18")
+    implementation("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava")
 }
