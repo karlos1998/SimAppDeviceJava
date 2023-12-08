@@ -2,6 +2,7 @@ package it.letscode.simappdevice;
 
 import static java.security.AccessController.getContext;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
 import com.github.mustachejava.DefaultMustacheFactory;
@@ -17,12 +18,16 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 
 public class MyHTTPServer  extends NanoHTTPD {
     private Context context;
+    private String adminPassword = "lci123password";
 
     public MyHTTPServer(Context context, int port) {
         super(port);
@@ -34,6 +39,16 @@ public class MyHTTPServer  extends NanoHTTPD {
         // Zbierz dane wysłane przez klienta (przeglądarkę)
         Method method = session.getMethod();
         String uri = session.getUri();
+        String cookieHeader = session.getHeaders().get("cookie");
+
+        assert cookieHeader != null;
+        boolean isLogged = cookieHeader.contains("lci-session=" + adminPassword);
+
+        if(isLogged) {
+
+        }
+
+        System.out.println("Cookie header: " + cookieHeader);
 
         if (uri.equals("/style.css")) {
             return serveStaticFile("style.css", "text/css");
@@ -86,12 +101,24 @@ public class MyHTTPServer  extends NanoHTTPD {
 
         String password = postData.get("password");
 
-        System.out.println("Type password:" + password);
+        if (password != null && password.equals(adminPassword)) {
+            Response response = loadPage("login.html");
 
-        if (password != null && password.equals("lci123password")) {
-            // Jeśli hasło jest poprawne, udziel dostępu
-            return newFixedLengthResponse("Test");
-            // Tutaj możesz zwrócić żądane zasoby dla użytkownika
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.MONTH, 1);
+            Date expirationDate = calendar.getTime();
+
+            // Formatujemy datę na format używany w ciasteczkach
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z");
+            String expirationStr = dateFormat.format(expirationDate);
+
+            // Tworzymy wartość ciasteczka
+            String cookieValue = adminPassword; //todo - no tu raczej sesja powinna byc czy cos
+
+            // Tworzymy nagłówek Set-Cookie z datą wygaśnięcia
+            String setCookieValue = String.format("lci-session=%s; Expires=%s", cookieValue, expirationStr);
+            response.addHeader("Set-cookie", setCookieValue);
+            return response;
         } else {
             // Jeśli hasło nie jest poprawne, wyświetl formularz do wprowadzenia hasła
             return loadPage("login.html");
@@ -116,7 +143,7 @@ public class MyHTTPServer  extends NanoHTTPD {
 //            System.out.println("Wczytywanie template: " + writer.toString());
 
             Response response = newFixedLengthResponse(Response.Status.OK, "text/html", getTemplate(writer.toString()));
-            response.addHeader("Author", "Let's Code It - Karol Sójka");
+            response.addHeader("Author", "Let's Code It - www.letscode.it");
             return response;
         } catch (IOException e) {
             e.printStackTrace();
