@@ -29,9 +29,13 @@ public class MyHTTPServer  extends NanoHTTPD {
     private Context context;
     private final String adminPassword = "lci123password";
 
+    private SmsSender smsSender;
+
     public MyHTTPServer(Context context, int port) {
         super(port);
         this.context = context;
+
+        this.smsSender = new SmsSender();
     }
 
     @Override
@@ -95,20 +99,33 @@ public class MyHTTPServer  extends NanoHTTPD {
             e.printStackTrace();
         }
 
-        String password = postData.get("password");
+
 
         if(isLogged) {
-            return newFixedLengthResponse(Response.Status.OK, "text/html", "Zostałeś zalogowany :)");
+            if(uri.equals("/")) {
+                return loadPage("index.html");
+            } else if(uri.equals("/send_sms")) {
+                if(method == Method.POST) {
+                    String number = postData.get("number");
+                    String text = postData.get("text");
+                    smsSender.sendSms(number, text);
+                    return redirect("/");
+                } else {
+                    return loadPage("send_sms.html");
+                }
+            } else {
+                return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/html", "Page not found");
+            }
         } else {
+            String password = postData.get("password");
             if (password != null && password.equals(adminPassword)) {
                 // Tworzymy wartość ciasteczka
                 String cookieValue = adminPassword; //todo - no tu raczej sesja powinna byc czy cos
 
                 String setCookieValue = String.format("lci-session=%s; max-age=%s", cookieValue, "2592000");
 
-                Response response = newFixedLengthResponse(Response.Status.REDIRECT, "text/plain", "");
+                Response response = redirect("/");
                 response.addHeader("Set-cookie", setCookieValue);
-                response.addHeader("Location", "/");
                 return response;
             } else {
                 // Jeśli hasło nie jest poprawne, wyświetl formularz do wprowadzenia hasła
@@ -170,6 +187,12 @@ public class MyHTTPServer  extends NanoHTTPD {
             e.printStackTrace();
             return newFixedLengthResponse("Error during load static file: " + e.getMessage());
         }
+    }
+
+    private Response redirect(String url) {
+        Response response = newFixedLengthResponse(Response.Status.REDIRECT, "text/plain", "");
+        response.addHeader("Location", url);
+        return response;
     }
 
 }
