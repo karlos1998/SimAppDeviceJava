@@ -101,19 +101,10 @@ public class MyHTTPServer  extends NanoHTTPD {
             return newFixedLengthResponse(Response.Status.OK, "text/html", "Zostałeś zalogowany :)");
         } else {
             if (password != null && password.equals(adminPassword)) {
-                Calendar calendar = Calendar.getInstance();
-                calendar.add(Calendar.MONTH, 1);
-                Date expirationDate = calendar.getTime();
-
-                // Formatujemy datę na format używany w ciasteczkach
-                @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z");
-                String expirationStr = dateFormat.format(expirationDate);
-
                 // Tworzymy wartość ciasteczka
                 String cookieValue = adminPassword; //todo - no tu raczej sesja powinna byc czy cos
 
-                // Tworzymy nagłówek Set-Cookie z datą wygaśnięcia
-                String setCookieValue = String.format("lci-session=%s; Expires=%s", cookieValue, expirationStr);
+                String setCookieValue = String.format("lci-session=%s; max-age=%s", cookieValue, "2592000");
 
                 Response response = newFixedLengthResponse(Response.Status.REDIRECT, "text/plain", "");
                 response.addHeader("Set-cookie", setCookieValue);
