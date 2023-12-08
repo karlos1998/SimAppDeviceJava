@@ -27,7 +27,7 @@ import java.util.Map;
 
 public class MyHTTPServer  extends NanoHTTPD {
     private Context context;
-    private String adminPassword = "lci123password";
+    private final String adminPassword = "lci123password";
 
     public MyHTTPServer(Context context, int port) {
         super(port);
@@ -41,12 +41,8 @@ public class MyHTTPServer  extends NanoHTTPD {
         String uri = session.getUri();
         String cookieHeader = session.getHeaders().get("cookie");
 
-        assert cookieHeader != null;
-        boolean isLogged = cookieHeader.contains("lci-session=" + adminPassword);
+        boolean isLogged = cookieHeader != null && cookieHeader.contains("lci-session=" + adminPassword);
 
-        if(isLogged) {
-
-        }
 
         System.out.println("Cookie header: " + cookieHeader);
 
@@ -101,27 +97,32 @@ public class MyHTTPServer  extends NanoHTTPD {
 
         String password = postData.get("password");
 
-        if (password != null && password.equals(adminPassword)) {
-            Response response = loadPage("login.html");
-
-            Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.MONTH, 1);
-            Date expirationDate = calendar.getTime();
-
-            // Formatujemy datę na format używany w ciasteczkach
-            @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z");
-            String expirationStr = dateFormat.format(expirationDate);
-
-            // Tworzymy wartość ciasteczka
-            String cookieValue = adminPassword; //todo - no tu raczej sesja powinna byc czy cos
-
-            // Tworzymy nagłówek Set-Cookie z datą wygaśnięcia
-            String setCookieValue = String.format("lci-session=%s; Expires=%s", cookieValue, expirationStr);
-            response.addHeader("Set-cookie", setCookieValue);
-            return response;
+        if(isLogged) {
+            return newFixedLengthResponse(Response.Status.OK, "text/html", "Zostałeś zalogowany :)");
         } else {
-            // Jeśli hasło nie jest poprawne, wyświetl formularz do wprowadzenia hasła
-            return loadPage("login.html");
+            if (password != null && password.equals(adminPassword)) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.add(Calendar.MONTH, 1);
+                Date expirationDate = calendar.getTime();
+
+                // Formatujemy datę na format używany w ciasteczkach
+                @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z");
+                String expirationStr = dateFormat.format(expirationDate);
+
+                // Tworzymy wartość ciasteczka
+                String cookieValue = adminPassword; //todo - no tu raczej sesja powinna byc czy cos
+
+                // Tworzymy nagłówek Set-Cookie z datą wygaśnięcia
+                String setCookieValue = String.format("lci-session=%s; Expires=%s", cookieValue, expirationStr);
+
+                Response response = newFixedLengthResponse(Response.Status.REDIRECT, "text/plain", "");
+                response.addHeader("Set-cookie", setCookieValue);
+                response.addHeader("Location", "/");
+                return response;
+            } else {
+                // Jeśli hasło nie jest poprawne, wyświetl formularz do wprowadzenia hasła
+                return loadPage("login.html");
+            }
         }
 
     }
