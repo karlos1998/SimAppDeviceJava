@@ -1,0 +1,14 @@
+<h3>Permissions </h3>
+
+<table border="1">
+    <tr>
+        <th>Permission</th>
+        <th>Status</th>
+    </tr>
+    {{#permissions}}
+    <tr>
+        <td>{{name}}</td>
+        <td>{{#granted}}Granted{{/granted}}{{^granted}}Not Granted{{/granted}}</td>
+    </tr>
+    {{/permissions}}
+</table>

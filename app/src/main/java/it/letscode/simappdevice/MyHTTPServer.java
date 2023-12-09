@@ -23,7 +23,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.util.List;
+import java.util.ArrayList;
 public class MyHTTPServer  extends NanoHTTPD {
     private Context context;
     private final String adminPassword = "lci123password";
@@ -31,12 +32,15 @@ public class MyHTTPServer  extends NanoHTTPD {
     private SmsSender smsSender;
     private SmsReader smsReader;
 
+    private Permissions permissions;
+
     public MyHTTPServer(Context context, int port) {
         super(port);
         this.context = context;
 
         this.smsSender = new SmsSender();
         this.smsReader = new SmsReader();
+        this.permissions = new Permissions();
     }
 
     @Override
@@ -117,6 +121,25 @@ public class MyHTTPServer  extends NanoHTTPD {
                 Map<String, Object> data = new HashMap<>();
                 data.put("messages", smsReader.getLastMessages(10, context));
                 return loadPage("sms_list.html", data);
+            } else if(uri.equals("/debug")) {
+
+                // Pobranie danych o uprawnieniach
+                Map<String, Boolean> permissions = this.permissions.getAllPermissions(context.getPackageManager());
+
+                // Przygotowanie danych do wstrzyknięcia w szablon
+                List<Map<String, Object>> permissionList = new ArrayList<>();
+                for (Map.Entry<String, Boolean> entry : permissions.entrySet()) {
+                    Map<String, Object> permissionData = new HashMap<>();
+                    permissionData.put("name", entry.getKey());
+                    permissionData.put("granted", entry.getValue());
+                    permissionList.add(permissionData);
+                }
+
+                // Przygotowanie danych do wstrzyknięcia w szablon Mustache
+                Map<String, Object> data = new HashMap<>();
+                data.put("permissions", permissionList);
+
+                return loadPage("debug.html", data);
             } else {
                 return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/html", "Page not found");
             }
