@@ -1,16 +1,21 @@
 package it.letscode.simappdevice;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.widget.TextView;
 
 import java.io.IOException;
-
+import android.content.pm.PackageManager;
 public class MainActivity extends AppCompatActivity {
 
     private MyHTTPServer server;
@@ -34,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             System.err.println("Błąd uruchamiania serwera: " + e.getMessage());
         }
-
 
         NetworkSignalStrengthChecker networkSignalStrengthChecker = new NetworkSignalStrengthChecker(this);
         networkSignalStrengthChecker.startSignalStrengthCheck();
