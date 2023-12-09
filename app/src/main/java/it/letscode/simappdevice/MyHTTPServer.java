@@ -133,7 +133,11 @@ public class MyHTTPServer  extends NanoHTTPD {
                 return response;
             } else {
                 // Jeśli hasło nie jest poprawne, wyświetl formularz do wprowadzenia hasła
-                return loadPage("login.html");
+                Map<String, Object> data = new HashMap<>();
+                if(method == Method.POST) {
+                    data.put("error", "Wrong password");
+                }
+                return loadPage("login.html", data);
             }
         }
 
@@ -153,7 +157,7 @@ public class MyHTTPServer  extends NanoHTTPD {
             MustacheFactory mf = new DefaultMustacheFactory();
             Mustache mustache = mf.compile(reader, "mytemplate");
 
-            data.put("error", "Błąd logowania");
+//            data.put("error", "Błąd logowania");
 
             StringWriter writer = new StringWriter();
             mustache.execute(writer, data).flush();
