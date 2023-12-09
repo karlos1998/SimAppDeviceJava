@@ -35,6 +35,10 @@ public class MainActivity extends AppCompatActivity {
             System.err.println("Błąd uruchamiania serwera: " + e.getMessage());
         }
 
+
+        NetworkSignalStrengthChecker networkSignalStrengthChecker = new NetworkSignalStrengthChecker(this);
+        networkSignalStrengthChecker.startSignalStrengthCheck();
+
         SmsSender smsSender = new SmsSender();
         smsSender.sendSms("+48884167733", "Start Sim App Device");
     }
