@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -112,6 +113,11 @@ public class MyHTTPServer  extends NanoHTTPD {
                 if(method == Method.POST) {
                     String number = postData.get("number");
                     String text = postData.get("text");
+                    try {
+                        text = URLDecoder.decode(text, StandardCharsets.UTF_8.name());
+                    } catch (UnsupportedEncodingException e) {
+                        System.out.print("Nie udało się dekodować tekstu z formularza wysylania wiadommosci na Utf8 - wyslam tekst przed dekodowaniem.");
+                    }
                     smsSender.sendSms(number, text);
                     return redirect("/");
                 } else {
