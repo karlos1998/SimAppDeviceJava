@@ -24,18 +24,19 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-
 public class MyHTTPServer  extends NanoHTTPD {
     private Context context;
     private final String adminPassword = "lci123password";
 
     private SmsSender smsSender;
+    private SmsReader smsReader;
 
     public MyHTTPServer(Context context, int port) {
         super(port);
         this.context = context;
 
         this.smsSender = new SmsSender();
+        this.smsReader = new SmsReader();
     }
 
     @Override
@@ -46,7 +47,6 @@ public class MyHTTPServer  extends NanoHTTPD {
         String cookieHeader = session.getHeaders().get("cookie");
 
         boolean isLogged = cookieHeader != null && cookieHeader.contains("lci-session=" + adminPassword);
-
 
         System.out.println("Cookie header: " + cookieHeader);
 
@@ -113,6 +113,10 @@ public class MyHTTPServer  extends NanoHTTPD {
                 } else {
                     return loadPage("send_sms.html");
                 }
+            } else if(uri.equals("/sms_list")) {
+                Map<String, Object> data = new HashMap<>();
+                data.put("messages", smsReader.getLastMessages(10, context));
+                return loadPage("sms_list.html", data);
             } else {
                 return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/html", "Page not found");
             }
@@ -136,6 +140,12 @@ public class MyHTTPServer  extends NanoHTTPD {
     }
 
     private Response loadPage(String filename) {
+        Map<String, Object> data = new HashMap<>();
+        return loadPage(filename, data);
+    }
+
+
+    private Response loadPage(String filename, Map<String, Object> data) {
         try {
             InputStream fileStream = context.getAssets().open(filename);
             InputStreamReader reader = new InputStreamReader(fileStream, StandardCharsets.UTF_8);
@@ -143,11 +153,10 @@ public class MyHTTPServer  extends NanoHTTPD {
             MustacheFactory mf = new DefaultMustacheFactory();
             Mustache mustache = mf.compile(reader, "mytemplate");
 
-            Map<String, String> context = new HashMap<>();
-            context.put("error", "Błąd logowania");
+            data.put("error", "Błąd logowania");
 
             StringWriter writer = new StringWriter();
-            mustache.execute(writer, context).flush();
+            mustache.execute(writer, data).flush();
 
 //            System.out.println("Wczytywanie template: " + writer.toString());
 

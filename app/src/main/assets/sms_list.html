@@ -1,0 +1,21 @@
+<h1>Ostatnie wiadomości SMS</h1>
+<table>
+    <thead>
+    <tr>
+        <th>Type</th>
+        <th>Recipient</th>
+        <th>Text</th>
+        <th>Date</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{#messages}}
+    <tr>
+        <td>{{type}}</td>
+        <td>{{senderNumber}}</td>
+        <td>{{messageBody}}</td>
+        <td>{{formattedMessage}}</td>
+    </tr>
+    {{/messages}}
+    </tbody>
+</table>
