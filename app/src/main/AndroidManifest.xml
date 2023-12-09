@@ -56,6 +56,15 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".SmsSentReceiver"
+            android:exported="true"
+            android:permission="android.permission.SEND_SMS"
+            tools:ignore="ExportedReceiver">
+            <intent-filter>
+                <action android:name="SMS_SENT" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

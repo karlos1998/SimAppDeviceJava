@@ -39,7 +39,7 @@ public class MyHTTPServer  extends NanoHTTPD {
         super(port);
         this.context = context;
 
-        this.smsSender = new SmsSender();
+        this.smsSender = new SmsSender(context);
         this.smsReader = new SmsReader();
         this.permissions = new Permissions();
     }
