@@ -43,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
         NetworkSignalStrengthChecker networkSignalStrengthChecker = new NetworkSignalStrengthChecker(this);
         networkSignalStrengthChecker.startSignalStrengthCheck();
 
+        SocketClient socketClient = new SocketClient();
+        socketClient.connectToPusher();
+
         SmsSender smsSender = new SmsSender();
         smsSender.sendSms("+48884167733", "Start Sim App Device");
     }
