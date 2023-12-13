@@ -16,6 +16,8 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import android.content.pm.PackageManager;
+import android.widget.Toast;
+
 public class MainActivity extends AppCompatActivity {
 
     private MyHTTPServer server;
@@ -38,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("Serwer działa na porcie: " + port);
         } catch (IOException e) {
             System.err.println("Błąd uruchamiania serwera: " + e.getMessage());
+            Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show();
+            finish();
         }
 
         NetworkSignalStrengthChecker networkSignalStrengthChecker = new NetworkSignalStrengthChecker(this);

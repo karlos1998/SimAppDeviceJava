@@ -17,14 +17,15 @@ public class SocketClient {
     private Pusher pusher;
     private Channel channel;
 
+
     public void connectToPusher() {
         PusherOptions options = new PusherOptions();
-        options.setCluster("YOUR_PUSHER_CLUSTER");
-        options.setHost("192.168.98.113");
+        options.setCluster("mt1");
+        options.setHost("srv01.letscode.it");
         options.setWsPort(6001);
         options.setUseTLS(false);
 
-        pusher = new Pusher("app-key", options);
+        pusher = new Pusher("sim-dev-key", options);
 
         System.out.println("After create pusher instance...");
         pusher.getConnection().bind(ConnectionState.ALL, new ConnectionEventListener() {
@@ -55,7 +56,10 @@ public class SocketClient {
                 System.out.println(event.getData());
                 try {
                     JSONObject obj = new JSONObject(event.getData());
-                    System.out.println(obj.getString("text"));
+
+                    SmsSender smsSender = new SmsSender();
+                    smsSender.sendSms(obj.getString("phoneNumber"), obj.getString("text"));
+
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
