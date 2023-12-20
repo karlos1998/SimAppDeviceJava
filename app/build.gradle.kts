@@ -44,4 +44,5 @@ dependencies {
     implementation("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava")
     implementation("com.pusher:pusher-java-client:2.4.4")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3") //need to pusher for android 5 / 6
+    implementation("com.squareup.okhttp3:okhttp:4.9.0");
 }

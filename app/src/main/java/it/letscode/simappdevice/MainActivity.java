@@ -15,8 +15,13 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import android.content.pm.PackageManager;
 import android.widget.Toast;
+
+import org.json.JSONException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,8 +52,14 @@ public class MainActivity extends AppCompatActivity {
         NetworkSignalStrengthChecker networkSignalStrengthChecker = new NetworkSignalStrengthChecker(this);
         networkSignalStrengthChecker.startSignalStrengthCheck();
 
-        SocketClient socketClient = new SocketClient();
-        socketClient.connectToPusher();
+
+        ControllerHttpGateway controllerHttpGateway = new ControllerHttpGateway();
+        try {
+            controllerHttpGateway.login("53614ad765993b47eec5cdee5239f8a4aa4c2e55");
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
 
         SmsSender smsSender = new SmsSender();
         smsSender.sendSms("+48884167733", "Start Sim App Device");
