@@ -58,6 +58,9 @@ public class SocketClient {
         options.setWsPort(6001);
         options.setUseTLS(false);
 
+        options.setActivityTimeout(10000); //timeout
+        options.setPongTimeout(30000);
+
         options.setChannelAuthorizer((channelName, socketId) -> {
             System.out.println("W tym moemncie authorize token byl wymagany dla kanalu: " + channelName);
 
