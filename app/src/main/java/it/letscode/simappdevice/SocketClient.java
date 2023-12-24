@@ -30,7 +30,7 @@ import okhttp3.Response;
 
 public class SocketClient {
 
-    private Pusher pusher;
+    private static Pusher pusher;
 
     private MyPreferences myPreferences;
     public SocketClient() {
@@ -38,12 +38,16 @@ public class SocketClient {
     }
 
     public void previousStop() {
-        if (pusher != null && pusher.getConnection().getState() == ConnectionState.CONNECTED) {
+        if (isConnected()) {
             pusher.disconnect();
             Log.d("Pusher", "Połączenie z Pusher zostało rozłączone z racji ponownego logowania do laravel.");
         } else {
             Log.d("Pusher", "Pusher nie był połączony, więc nie ma potrzeby rozłączania z racji ponownego logowania do laravel.");
         }
+    }
+
+    public boolean isConnected() {
+        return pusher != null && pusher.getConnection().getState() == ConnectionState.CONNECTED;
     }
 
     public void connectToPusher(String authKey) {

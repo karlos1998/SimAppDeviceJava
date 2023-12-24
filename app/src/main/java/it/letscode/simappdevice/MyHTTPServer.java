@@ -9,6 +9,9 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import fi.iki.elonen.NanoHTTPD;
 
 import java.io.ByteArrayOutputStream;
@@ -39,6 +42,8 @@ public class MyHTTPServer  extends NanoHTTPD {
 
     ControllerHttpGateway controllerHttpGateway;
 
+    SocketClient socketClient;
+
     public MyHTTPServer(Context context, int port) {
         super(port);
         this.context = context;
@@ -49,6 +54,8 @@ public class MyHTTPServer  extends NanoHTTPD {
 
         this.myPreferences = new MyPreferences();
         this.controllerHttpGateway = new ControllerHttpGateway();
+
+        this.socketClient = new SocketClient();
 
     }
 
@@ -176,6 +183,13 @@ public class MyHTTPServer  extends NanoHTTPD {
                     data.put("token", myPreferences.getLoginToken());
                     return loadPage("controller_configuration.html", data);
                 }
+            } else if(uri.equals("/data.json")) {
+                JSONObject json = new JSONObject() {{
+                    try {
+                        put("socketIsConnected", socketClient.isConnected());
+                    } catch (JSONException ignore) {}
+                }};
+                return newFixedLengthResponse(Response.Status.OK, "application/json", json.toString());
             } else {
                 return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/html", "Page not found");
             }
