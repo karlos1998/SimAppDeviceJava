@@ -50,7 +50,7 @@ public class SocketClient {
         return pusher != null && pusher.getConnection().getState() == ConnectionState.CONNECTED;
     }
 
-    public void connectToPusher(String authKey) {
+    public void connectToPusher() {
 
         PusherOptions options = new PusherOptions();
         options.setCluster("mt1");
@@ -75,7 +75,7 @@ public class SocketClient {
                     .url(myPreferences.getHostUrl() + "/broadcasting/auth")
                     .post(body)
                     .addHeader("Accept", "application/json")
-                    .addHeader("Authorization", "Bearer " + authKey)
+                    .addHeader("Authorization", "Bearer " + Device.getAuthToken())
                     .build();
 
             OkHttpClient client = new OkHttpClient();
@@ -111,7 +111,7 @@ public class SocketClient {
         });
 
         pusher.connect();
-        Channel privateChannel = pusher.subscribePrivate("private-device.1", new PrivateChannelEventListener() {
+        Channel privateChannel = pusher.subscribePrivate("private-device." + Device.getDeviceId(), new PrivateChannelEventListener() {
             @Override
             public void onEvent(PusherEvent event) {
                 System.out.print("Pusher private-device.* onEvent: ");

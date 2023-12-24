@@ -40,8 +40,10 @@ public class ControllerHttpGateway {
 
                     try {
                         JSONObject obj = new JSONObject(responseBody);
-                        httpClient.setAuthToken( obj.getString("authToken") );
-                        socketClient.connectToPusher( obj.getString("authToken") );
+
+                        Device.setFromLoginResponse(obj);
+
+                        socketClient.connectToPusher();
                     } catch (JSONException ignored) {
                         Log.d(TAG, "Nie udało się zalogowac (1)");
                     }

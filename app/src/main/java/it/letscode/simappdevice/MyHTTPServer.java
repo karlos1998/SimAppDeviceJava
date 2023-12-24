@@ -187,6 +187,8 @@ public class MyHTTPServer  extends NanoHTTPD {
                 JSONObject json = new JSONObject() {{
                     try {
                         put("socketIsConnected", socketClient.isConnected());
+                        put("deviceName", Device.getDeviceName());
+                        put("deviceId", Device.getDeviceId());
                     } catch (JSONException ignore) {}
                 }};
                 return newFixedLengthResponse(Response.Status.OK, "application/json", json.toString());

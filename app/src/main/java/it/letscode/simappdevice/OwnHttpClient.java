@@ -28,7 +28,6 @@ public class OwnHttpClient {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
-    private static String authToken = "";
     private static final String TAG = "Own Http Client";
 
     public interface HttpResponseCallback {
@@ -36,22 +35,18 @@ public class OwnHttpClient {
         void onFailure(Throwable throwable);
     }
 
-    public void setAuthToken(String token) {
-        Log.d(TAG, "setAuthToken: " + token);
-        authToken = token;
-    }
 
     public void post(String url, String json, HttpResponseCallback callback) {
 
         Log.d(TAG, "Request JSON: " + json);
-        Log.d(TAG, "Request Bearer: " + authToken);
+        Log.d(TAG, "Request Bearer: " + Device.getAuthToken());
         Runnable task = () -> {
             RequestBody body = RequestBody.create(json, MediaType.parse("application/json; charset=utf-8"));
             Request request = new Request.Builder()
                     .url(url)
                     .post(body)
                     .addHeader("Accept", "application/json")
-                    .addHeader("Authorization", "Bearer " + authToken)
+                    .addHeader("Authorization", "Bearer " + Device.getAuthToken())
                     .build();
             try (Response response = client.newCall(request).execute()) {
                 final String responseBody = response.body().string();
