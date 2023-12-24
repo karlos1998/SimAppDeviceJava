@@ -35,6 +35,10 @@ public class MyHTTPServer  extends NanoHTTPD {
 
     private Permissions permissions;
 
+    private MyPreferences myPreferences;
+
+    ControllerHttpGateway controllerHttpGateway;
+
     public MyHTTPServer(Context context, int port) {
         super(port);
         this.context = context;
@@ -42,6 +46,10 @@ public class MyHTTPServer  extends NanoHTTPD {
         this.smsSender = new SmsSender(context);
         this.smsReader = new SmsReader();
         this.permissions = new Permissions();
+
+        this.myPreferences = new MyPreferences();
+        this.controllerHttpGateway = new ControllerHttpGateway();
+
     }
 
     @Override
@@ -146,6 +154,28 @@ public class MyHTTPServer  extends NanoHTTPD {
                 data.put("permissions", permissionList);
 
                 return loadPage("debug.html", data);
+            } else if(uri.equals("/controller_configuration")) {
+                if(method == Method.POST) {
+                    String url = postData.get("url");
+                    try {
+                        url = URLDecoder.decode(url, StandardCharsets.UTF_8.name());
+                    } catch (UnsupportedEncodingException ignored) {
+
+                    }
+                    assert url != null;
+                    myPreferences.setHostUrl(url.startsWith("http") ? url : ("http://" + url));
+
+                    String token = postData.get("token");
+                    myPreferences.setLoginToken(token);
+                    controllerHttpGateway.login(token); //53614ad765993b47eec5cdee5239f8a4aa4c2e55
+
+                    return redirect("/");
+                } else {
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("url", myPreferences.getHostUrl());
+                    data.put("token", myPreferences.getLoginToken());
+                    return loadPage("controller_configuration.html", data);
+                }
             } else {
                 return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/html", "Page not found");
             }

@@ -32,8 +32,9 @@ public class SocketClient {
 
     private Pusher pusher;
 
-    final String hostUrl = "http://192.168.98.113";
+    private MyPreferences myPreferences;
     public SocketClient() {
+        this.myPreferences = new MyPreferences();
     }
 
     public void previousStop() {
@@ -67,7 +68,7 @@ public class SocketClient {
 
             RequestBody body = RequestBody.create(json.toString(), MediaType.parse("application/json; charset=utf-8"));
             Request request = new Request.Builder()
-                    .url(hostUrl + "/broadcasting/auth")
+                    .url(myPreferences.getHostUrl() + "/broadcasting/auth")
                     .post(body)
                     .addHeader("Accept", "application/json")
                     .addHeader("Authorization", "Bearer " + authKey)

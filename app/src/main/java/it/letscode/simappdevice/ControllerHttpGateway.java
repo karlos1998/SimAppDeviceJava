@@ -7,35 +7,44 @@ import org.json.JSONObject;
 
 public class ControllerHttpGateway {
 //    final String hostUrl = "https://panel-dev.simply-connect.ovh";
-    final String hostUrl = "http://192.168.98.113";
 
     private static final String TAG = "HTTP Controller Gateway";
 
     OwnHttpClient httpClient;
+
+    MyPreferences myPreferences;
     public ControllerHttpGateway() {
         httpClient = new OwnHttpClient();
+        this.myPreferences = new MyPreferences();
     }
 
-    public void login(String token) throws JSONException {
+    public void login(String token) {
 
         SocketClient socketClient = new SocketClient();
 
         socketClient.previousStop();
 
         JSONObject json = new JSONObject();
-        json.put("token", token);
-        httpClient.post(hostUrl + "/device-api/login", json.toString(), new OwnHttpClient.HttpResponseCallback() {
+        try {
+            json.put("token", token);
+        } catch (JSONException ignored) {
+
+        }
+        httpClient.post(myPreferences.getHostUrl() + "/device-api/login", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
-            public void onResponse(String responseBody, int responseCode) throws JSONException {
+            public void onResponse(String responseBody, int responseCode) {
                 if(responseCode == 200) {
                     Log.d(TAG, "Udało się zalogowac");
                     System.out.println(responseBody);
 
-                    JSONObject obj = new JSONObject(responseBody);
 
-                    httpClient.setAuthToken( obj.getString("authToken") );
-
-                    socketClient.connectToPusher( obj.getString("authToken") );
+                    try {
+                        JSONObject obj = new JSONObject(responseBody);
+                        httpClient.setAuthToken( obj.getString("authToken") );
+                        socketClient.connectToPusher( obj.getString("authToken") );
+                    } catch (JSONException ignored) {
+                        Log.d(TAG, "Nie udało się zalogowac (1)");
+                    }
 
                 } else {
                     Log.d(TAG, "Nie udało się zalogowac");

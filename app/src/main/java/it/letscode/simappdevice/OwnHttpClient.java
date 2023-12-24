@@ -32,7 +32,7 @@ public class OwnHttpClient {
     private static final String TAG = "Own Http Client";
 
     public interface HttpResponseCallback {
-        void onResponse(String responseBody, int responseCode) throws JSONException;
+        void onResponse(String responseBody, int responseCode);
         void onFailure(Throwable throwable);
     }
 
@@ -57,11 +57,7 @@ public class OwnHttpClient {
                 final String responseBody = response.body().string();
                 final int responseCode = response.code();
                 mainHandler.post(() -> {
-                    try {
-                        callback.onResponse(responseBody, responseCode);
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
+                    callback.onResponse(responseBody, responseCode);
                 });
             } catch (IOException e) {
                 mainHandler.post(() -> {

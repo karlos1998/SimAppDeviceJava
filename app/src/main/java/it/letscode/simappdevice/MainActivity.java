@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -53,12 +54,13 @@ public class MainActivity extends AppCompatActivity {
         networkSignalStrengthChecker.startSignalStrengthCheck();
 
 
+        MyPreferences myPreferences = new MyPreferences();
+        myPreferences.setContext(getApplicationContext());
+        String prefsContent = myPreferences.getAllPreferences();
+        Log.d("SharedPreferences", "Zawartość: " + prefsContent);
+
         ControllerHttpGateway controllerHttpGateway = new ControllerHttpGateway();
-        try {
-            controllerHttpGateway.login("53614ad765993b47eec5cdee5239f8a4aa4c2e55");
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
+        controllerHttpGateway.login(myPreferences.getLoginToken());
 
 
         SmsSender smsSender = new SmsSender();
