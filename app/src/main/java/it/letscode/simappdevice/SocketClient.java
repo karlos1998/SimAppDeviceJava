@@ -8,9 +8,11 @@ import com.pusher.client.ChannelAuthorizer;
 import com.pusher.client.Pusher;
 import com.pusher.client.PusherOptions;
 import com.pusher.client.channel.Channel;
+import com.pusher.client.channel.PresenceChannelEventListener;
 import com.pusher.client.channel.PrivateChannelEventListener;
 import com.pusher.client.channel.PusherEvent;
 import com.pusher.client.channel.SubscriptionEventListener;
+import com.pusher.client.channel.User;
 import com.pusher.client.connection.ConnectionEventListener;
 import com.pusher.client.connection.ConnectionState;
 import com.pusher.client.connection.ConnectionStateChange;
@@ -21,6 +23,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Set;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -75,7 +78,7 @@ public class SocketClient {
 
             RequestBody body = RequestBody.create(json.toString(), MediaType.parse("application/json; charset=utf-8"));
             Request request = new Request.Builder()
-                    .url(myPreferences.getHostUrl() + "/broadcasting/auth")
+                    .url(myPreferences.getHostUrl() + "/device-api/broadcasting/auth")
                     .post(body)
                     .addHeader("Accept", "application/json")
                     .addHeader("Authorization", "Bearer " + Device.getAuthToken())
@@ -87,6 +90,7 @@ public class SocketClient {
 
                 if(response.code() != 200) {
                     System.out.println("Nie udalo sie pobrac klucza logowania do prywatnego kanalu: " + channelName + ". Status code: " + response.code());
+//                    System.out.println(response.body().string());
                     throw new AuthorizationFailureException();
                 }
                 final String responseBody = response.body().string();
@@ -114,6 +118,11 @@ public class SocketClient {
         });
 
         pusher.connect();
+
+
+        /**
+         * Prywatny kanal nasluchiwania dla danego device
+         */
         Channel privateChannel = pusher.subscribePrivate("private-device." + Device.getDeviceId(), new PrivateChannelEventListener() {
             @Override
             public void onEvent(PusherEvent event) {
@@ -133,6 +142,9 @@ public class SocketClient {
             }
         });
 
+        /**
+         * Testowy listener prywatnego kanalu
+         */
         privateChannel.bind("App\\Events\\Test", new PrivateChannelEventListener() {
             @Override
             public void onEvent(PusherEvent event) {
@@ -161,6 +173,49 @@ public class SocketClient {
                 System.err.println("Błąd autoryzacji: " + message);
             }
         });
+        /* ************************************************* */
+
+
+
+
+        /* *
+         * Łączenie się do kanlu uzytkownika i jego devices
+         * Chodzi o przekazywanie informacji realtime o statusie dzialania device realtime
+         * -
+         * UWAGA. nazwa kanlu jest testowa.
+         */
+        pusher.subscribePresence("presence-online-users", new PresenceChannelEventListener() {
+            @Override
+            public void onUsersInformationReceived(String channelName, Set<User> users) {
+
+            }
+
+            @Override
+            public void userSubscribed(String channelName, User user) {
+
+            }
+
+            @Override
+            public void userUnsubscribed(String channelName, User user) {
+
+            }
+
+            @Override
+            public void onAuthenticationFailure(String message, Exception e) {
+
+            }
+
+            @Override
+            public void onSubscriptionSucceeded(String channelName) {
+
+            }
+
+            @Override
+            public void onEvent(PusherEvent event) {
+
+            }
+        });
+
 
     }
 }
