@@ -122,78 +122,82 @@ public class MyHTTPServer  extends NanoHTTPD {
 
 
         if(isLogged) {
-            if(uri.equals("/")) {
-                return loadPage("index.html");
-            } else if(uri.equals("/send_sms")) {
-                if(method == Method.POST) {
-                    String number = postData.get("number");
-                    String text = postData.get("text");
-                    try {
-                        text = URLDecoder.decode(text, StandardCharsets.UTF_8.name());
-                    } catch (UnsupportedEncodingException e) {
-                        System.out.print("Nie udało się dekodować tekstu z formularza wysylania wiadommosci na Utf8 - wyslam tekst przed dekodowaniem.");
+            switch (uri) {
+                case "/":
+                    return loadPage("index.html");
+                case "/send_sms":
+                    if (method == Method.POST) {
+                        String number = postData.get("number");
+                        String text = postData.get("text");
+                        try {
+                            text = URLDecoder.decode(text, StandardCharsets.UTF_8.name());
+                        } catch (UnsupportedEncodingException e) {
+                            System.out.print("Nie udało się dekodować tekstu z formularza wysylania wiadommosci na Utf8 - wyslam tekst przed dekodowaniem.");
+                        }
+                        smsSender.sendSms(number, text);
+                        return redirect("/");
+                    } else {
+                        return loadPage("send_sms.html");
                     }
-                    smsSender.sendSms(number, text);
-                    return redirect("/");
-                } else {
-                    return loadPage("send_sms.html");
-                }
-            } else if(uri.equals("/sms_list")) {
-                Map<String, Object> data = new HashMap<>();
-                data.put("messages", smsReader.getLastMessages(10, context));
-                return loadPage("sms_list.html", data);
-            } else if(uri.equals("/debug")) {
-
-                // Pobranie danych o uprawnieniach
-                Map<String, Boolean> permissions = this.permissions.getAllPermissions(context.getPackageManager());
-
-                // Przygotowanie danych do wstrzyknięcia w szablon
-                List<Map<String, Object>> permissionList = new ArrayList<>();
-                for (Map.Entry<String, Boolean> entry : permissions.entrySet()) {
-                    Map<String, Object> permissionData = new HashMap<>();
-                    permissionData.put("name", entry.getKey());
-                    permissionData.put("granted", entry.getValue());
-                    permissionList.add(permissionData);
-                }
-
-                // Przygotowanie danych do wstrzyknięcia w szablon Mustache
-                Map<String, Object> data = new HashMap<>();
-                data.put("permissions", permissionList);
-
-                return loadPage("debug.html", data);
-            } else if(uri.equals("/controller_configuration")) {
-                if(method == Method.POST) {
-                    String url = postData.get("url");
-                    try {
-                        url = URLDecoder.decode(url, StandardCharsets.UTF_8.name());
-                    } catch (UnsupportedEncodingException ignored) {
-
-                    }
-                    assert url != null;
-                    myPreferences.setHostUrl(url.startsWith("http") ? url : ("http://" + url));
-
-                    String token = postData.get("token");
-                    myPreferences.setLoginToken(token);
-                    controllerHttpGateway.login(token); //53614ad765993b47eec5cdee5239f8a4aa4c2e55
-
-                    return redirect("/");
-                } else {
+                case "/sms_list": {
                     Map<String, Object> data = new HashMap<>();
-                    data.put("url", myPreferences.getHostUrl());
-                    data.put("token", myPreferences.getLoginToken());
-                    return loadPage("controller_configuration.html", data);
+                    data.put("messages", smsReader.getLastMessages(10, context));
+                    return loadPage("sms_list.html", data);
                 }
-            } else if(uri.equals("/data.json")) {
-                JSONObject json = new JSONObject() {{
-                    try {
-                        put("socketIsConnected", socketClient.isConnected());
-                        put("deviceName", Device.getDeviceName());
-                        put("deviceId", Device.getDeviceId());
-                    } catch (JSONException ignore) {}
-                }};
-                return newFixedLengthResponse(Response.Status.OK, "application/json", json.toString());
-            } else {
-                return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/html", "Page not found");
+                case "/debug": {
+
+                    // Pobranie danych o uprawnieniach
+                    Map<String, Boolean> permissions = this.permissions.getAllPermissions(context.getPackageManager());
+
+                    // Przygotowanie danych do wstrzyknięcia w szablon
+                    List<Map<String, Object>> permissionList = new ArrayList<>();
+                    for (Map.Entry<String, Boolean> entry : permissions.entrySet()) {
+                        Map<String, Object> permissionData = new HashMap<>();
+                        permissionData.put("name", entry.getKey());
+                        permissionData.put("granted", entry.getValue());
+                        permissionList.add(permissionData);
+                    }
+
+                    // Przygotowanie danych do wstrzyknięcia w szablon Mustache
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("permissions", permissionList);
+
+                    return loadPage("debug.html", data);
+                }
+                case "/controller_configuration":
+                    if (method == Method.POST) {
+                        String url = postData.get("url");
+                        try {
+                            url = URLDecoder.decode(url, StandardCharsets.UTF_8.name());
+                        } catch (UnsupportedEncodingException ignored) {
+
+                        }
+                        assert url != null;
+                        myPreferences.setHostUrl(url.startsWith("http") ? url : ("http://" + url));
+
+                        String token = postData.get("token");
+                        myPreferences.setLoginToken(token);
+                        controllerHttpGateway.login(token); //53614ad765993b47eec5cdee5239f8a4aa4c2e55
+
+                        return redirect("/");
+                    } else {
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("url", myPreferences.getHostUrl());
+                        data.put("token", myPreferences.getLoginToken());
+                        return loadPage("controller_configuration.html", data);
+                    }
+                case "/data.json":
+                    JSONObject json = new JSONObject() {{
+                        try {
+                            put("socketIsConnected", socketClient.isConnected());
+                            put("deviceName", Device.getDeviceName());
+                            put("deviceId", Device.getDeviceId());
+                        } catch (JSONException ignore) {
+                        }
+                    }};
+                    return newFixedLengthResponse(Response.Status.OK, "application/json", json.toString());
+                default:
+                    return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/html", "Page not found");
             }
         } else {
             String password = postData.get("password");
