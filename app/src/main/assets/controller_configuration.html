@@ -1,10 +1,109 @@
+
+
 <h3>Controller configuration</h3>
 
-<form class="form" action="controller_configuration" method="post" autocomplete="off">
+<input value="{{data}}" type="hidden" name="data" />
 
-    <input value="{{url}}" type="text" placeholder="Url" name="url" required />
+
+
+<form id="registerNewDevice"  class="form hidden" action="controller_configuration" method="post" autocomplete="off">
+
+    <input value="{{url}}" type="hidden" placeholder="Url" name="url" required />
+
     <input value="{{token}}" type="text" placeholder="Token" name="token" required />
 
 
     <input type="submit" value="Save" name="save" class="btn btn-block btn-primary" />
 </form>
+
+
+<br><br>
+
+<div id="deviceRegistered"  class="hidden" >
+
+    <div class="alert alert">
+        <p>The application has already been configured with the controller</p>
+    </div><br>
+
+    <button id="forgetController" class="btn btn-block btn-danger"> Forget Controller </button>
+</div>
+
+
+
+<script>
+
+    /*
+     * Fast 15x click to submit if you can change Web controller url
+     */
+    (function(){
+        var submitButton = document.querySelector('input[type="submit"]');
+        var hiddenInput = document.querySelector('input[name="url"]');
+        var clickCount = 0;
+        var clickTime = 10000;
+        var timeoutId = null;
+        function handleClick() {
+            clickCount++;
+            if (clickCount === 15) {
+                hiddenInput.type = 'text';
+            }
+
+            if(timeoutId) {
+                clearTimeout(timeoutId);
+            }
+
+            timeoutId = setTimeout(function() {
+                clickCount = 0;
+            }, clickTime);
+        }
+        submitButton.addEventListener('click', handleClick);
+    })();
+
+
+    /**
+     * Load form
+     */
+    (function(){
+        const data = JSON.parse(document.querySelector('input[name="data"]').value);
+
+        if(data.loginTokenExist) {
+            document.getElementById('deviceRegistered').classList.remove('hidden');
+        } else {
+            document.getElementById('registerNewDevice').classList.remove('hidden');
+        }
+
+    })();
+
+
+    /**
+     * Forget controller
+     * */
+    (function(){
+        function forgetControllerRequest() {
+            fetch(window.location.href, {
+                method: 'DELETE',
+            })
+            .then(data => {
+                location.href = "/";
+            })
+            .catch((error) => {
+                alert('Error.')
+            });
+        }
+
+        document.getElementById('forgetController').addEventListener('click', function() {
+            const val = prompt('Are you sure? Type \'yes\'')
+            if(val.toLowerCase().replaceAll(' ', '') == 'yes') {
+                forgetControllerRequest()
+            } else {
+                alert('Canceled');
+            }
+        });
+
+    })()
+</script>
+
+<style>
+    .hidden {
+        display: none;
+    }
+</style>

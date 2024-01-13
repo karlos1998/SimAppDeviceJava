@@ -176,14 +176,27 @@ public class MyHTTPServer  extends NanoHTTPD {
                         myPreferences.setHostUrl(url.startsWith("http") ? url : ("http://" + url));
 
                         String token = postData.get("token");
-                        myPreferences.setLoginToken(token);
-                        controllerHttpGateway.login(token); //53614ad765993b47eec5cdee5239f8a4aa4c2e55
+
+                        controllerHttpGateway.pair(token);
 
                         return redirect("/");
+                    } else if(method == Method.DELETE) {
+                        myPreferences.forgetLoginToken();
+                        socketClient.previousStop();
+                        return newFixedLengthResponse(Response.Status.NO_CONTENT, null, null);
                     } else {
                         Map<String, Object> data = new HashMap<>();
                         data.put("url", myPreferences.getHostUrl());
-                        data.put("token", myPreferences.getLoginToken());
+//                        data.put("token", myPreferences.getLoginToken());
+
+                        JSONObject json = new JSONObject() {{
+                            try {
+                                put("loginTokenExist", myPreferences.isLoginTokenExist());
+                            } catch (JSONException ignore) {
+                            }
+                        }};
+                        data.put("data", json.toString());
+
                         return loadPage("controller_configuration.html", data);
                     }
                 case "/data.json":

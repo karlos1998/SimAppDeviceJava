@@ -60,4 +60,48 @@ public class ControllerHttpGateway {
             }
         });
     }
+
+
+    public void pair(String token) {
+
+        SocketClient socketClient = new SocketClient();
+
+        socketClient.previousStop();
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("token", token);
+        } catch (JSONException ignored) {
+
+        }
+        httpClient.post(myPreferences.getHostUrl() + "/device-api/pair", json.toString(), new OwnHttpClient.HttpResponseCallback() {
+            @Override
+            public void onResponse(String responseBody, int responseCode) {
+                if(responseCode == 200) {
+                    Log.d(TAG, "Udało się sparować urządzenie");
+                    System.out.println(responseBody);
+
+                    try {
+                        JSONObject obj = new JSONObject(responseBody);
+                        Device.setFromLoginResponse(obj);
+
+                        myPreferences.setLoginToken(obj.getString("loginToken"));
+
+                        socketClient.connectToPusher();
+                    } catch (JSONException ignored) {
+                        Log.d(TAG, "Nie udało się sparować urządzenia (1)");
+                    }
+
+                } else {
+                    Log.d(TAG, "Nie udało się sparować urządzenia");
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                Log.d(TAG, "Nie udało się zalogowac - HTTP FAIL");
+                System.out.println(throwable.getMessage());
+            }
+        });
+    }
 }

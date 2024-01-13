@@ -61,10 +61,18 @@ public class MyPreferences {
     public String getLoginToken() {
         return prefs.getString(TOKEN_KEY, DEFAULT_TOKEN);
     }
+    public boolean isLoginTokenExist() {
+        return this.getLoginToken() != null && !this.getLoginToken().isEmpty();
+    }
 
     public void setLoginToken(String token) {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(TOKEN_KEY, token);
+        editor.apply();
+    }
+    public void forgetLoginToken () {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(TOKEN_KEY, "");
         editor.apply();
     }
 }
