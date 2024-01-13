@@ -23,12 +23,15 @@ public class NetworkSignalStrengthChecker {
 
     private static int lastKnownSignalStrength;
 
+
     public NetworkSignalStrengthChecker(Context context) {
         this.context = context;
     }
 
     public void startSignalStrengthCheck() {
         final TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+
+        ControllerHttpGateway controllerHttpGateway = new ControllerHttpGateway();
 
         PhoneStateListener phoneStateListener = new PhoneStateListener() {
             @Override
@@ -43,6 +46,8 @@ public class NetworkSignalStrengthChecker {
                     System.out.println("Signal Strength: " + lastKnownSignalStrength + " dBm");
 
                     lastLoggedTime = currentTime;
+
+                    controllerHttpGateway.sendSignalStrength(lastKnownSignalStrength);
 
                 }
             }

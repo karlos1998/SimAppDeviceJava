@@ -63,4 +63,32 @@ public class OwnHttpClient {
 
         executor.execute(task);
     }
+
+    public void put(String url, String json, HttpResponseCallback callback) {
+
+        Log.d(TAG, "Request JSON: " + json);
+        Log.d(TAG, "Request Bearer: " + Device.getAuthToken());
+        Runnable task = () -> {
+            RequestBody body = RequestBody.create(json, MediaType.parse("application/json; charset=utf-8"));
+            Request request = new Request.Builder()
+                    .url(url)
+                    .put(body)
+                    .addHeader("Accept", "application/json")
+                    .addHeader("Authorization", "Bearer " + Device.getAuthToken())
+                    .build();
+            try (Response response = client.newCall(request).execute()) {
+                final String responseBody = response.body().string();
+                final int responseCode = response.code();
+                mainHandler.post(() -> {
+                    callback.onResponse(responseBody, responseCode);
+                });
+            } catch (IOException e) {
+                mainHandler.post(() -> {
+                    callback.onFailure(e);
+                });
+            }
+        };
+
+        executor.execute(task);
+    }
 }

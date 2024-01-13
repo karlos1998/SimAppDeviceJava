@@ -104,4 +104,27 @@ public class ControllerHttpGateway {
             }
         });
     }
+
+
+    public void sendSignalStrength(int signalStrength) {
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("signalStrength", signalStrength);
+        } catch (JSONException ignored) {
+
+        }
+        httpClient.put(myPreferences.getHostUrl() + "/device-api/signal-strength", json.toString(), new OwnHttpClient.HttpResponseCallback() {
+            @Override
+            public void onResponse(String responseBody, int responseCode) {
+                System.out.println(responseBody);
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                Log.d(TAG, "Signal strength send error: ");
+                System.out.println(throwable.getMessage());
+            }
+        });
+    }
 }
