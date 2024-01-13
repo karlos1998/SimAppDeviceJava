@@ -5,7 +5,7 @@
 
 * Created by Karol Sójka
 * www.letscode.it
-* 2023
+* 2023 - 2024
 * kontakt@letscode.it
 
 * Trust me... You won't find anything interesting in the code of the site, seriously.
@@ -329,6 +329,23 @@
 			      color: inherit;
 			 }
 
+			 footer {
+                position: fixed;
+                left: 0;
+                bottom: 0;
+                width: 100%;
+                background-color: rgb(0 0 0 / 59%);
+                color: white;
+                text-align: center;
+	        }
+            footer > a {
+                color:white;
+            }
+
+            .hidden {
+                display: none;
+            }
+
 		</style>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -340,11 +357,13 @@
 
 <div class="body-content">
 
+    <input name="app-data" type="hidden" value="{{app_data}}" />
+
     <div class="module">
 
         <h1>Sim Device Client</h1>
 
-        <!-- tutaj jakies head data bylyby spoko -->
+        <br><hr><br>
 
         {{{content}}}
 
@@ -352,20 +371,6 @@
 </div>
 </body>
 
-<style>
-	footer {
-	position: fixed;
-	left: 0;
-	bottom: 0;
-	width: 100%;
-	background-color: rgb(0 0 0 / 59%);
-	color: white;
-	text-align: center;
-	}
-	footer > a {
-	color:white;
-	}
-</style>
 
 <footer>
     Created by <a target=_blank href="https://letscode.it">Karol Sójka</a>, from Poland.

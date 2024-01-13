@@ -28,6 +28,13 @@ public class Device {
         }
     }
 
+    public static void clear () {
+        deviceId = null;
+        deviceName = null;
+        loginToken = null;
+        authToken = null;
+    }
+
     public static String getDeviceId() {
         return deviceId;
     }

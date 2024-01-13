@@ -1,3 +1,10 @@
+<div id="appInfo" class="hidden alert">
+    <p><b>Socket</b>: <span id="socketStatus"></span></p>
+    <p><b>Device Name</b>: <span id="deviceName"></span></p>
+    <p><b>Device ID</b>: <span id="deviceId"></span></p>
+    <p><b>Signal Strength</b>: <span id="signalStrength"></span> dBm</p>
+    <p><b>Current Date</b>: <span id="currentDate"></span></p>
+</div>
 
 <br>
 
@@ -13,6 +20,32 @@
 
 <br><a  class="a-btn" href="/debug"><button class="btn btn-block btn-danger">Debug</button></a>
 
+<script>
+
+    function updateAppInfo (data) {
+
+        if(data.loginTokenExist) {
+            document.getElementById('appInfo').classList.remove('hidden');
 
 
-</div>
+            const socketStatusElement = document.getElementById('socketStatus');
+            socketStatusElement.style = "color: " + ( data.socketIsConnected ? 'lime' : 'red' );
+            socketStatusElement.innerHTML = ( data.socketIsConnected ? 'Connected' : 'Disconnected' );
+
+            document.getElementById('deviceName').innerHTML = data.deviceName;
+
+            document.getElementById('deviceId').innerHTML = data.deviceId;
+
+            document.getElementById('signalStrength').innerHTML = data.signalStrength;
+
+            document.getElementById('currentDate').innerHTML = data.currentDate;
+        }
+    };
+
+    updateAppInfo( JSON.parse(document.querySelector('input[name="app-data"]').value) );
+
+    setInterval(function(){
+        fetch('data.json').then((data) => data.json().then( (json) => updateAppInfo(json) ) )
+    }, 3000)
+
+</script>

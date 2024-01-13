@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
@@ -183,6 +184,8 @@ public class MyHTTPServer  extends NanoHTTPD {
                     } else if(method == Method.DELETE) {
                         myPreferences.forgetLoginToken();
                         socketClient.previousStop();
+                        Device.clear();
+
                         return newFixedLengthResponse(Response.Status.NO_CONTENT, null, null);
                     } else {
                         Map<String, Object> data = new HashMap<>();
@@ -200,15 +203,8 @@ public class MyHTTPServer  extends NanoHTTPD {
                         return loadPage("controller_configuration.html", data);
                     }
                 case "/data.json":
-                    JSONObject json = new JSONObject() {{
-                        try {
-                            put("socketIsConnected", socketClient.isConnected());
-                            put("deviceName", Device.getDeviceName());
-                            put("deviceId", Device.getDeviceId());
-                        } catch (JSONException ignore) {
-                        }
-                    }};
-                    return newFixedLengthResponse(Response.Status.OK, "application/json", json.toString());
+
+                    return newFixedLengthResponse(Response.Status.OK, "application/json", this.jsonData());
                 default:
                     return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/html", "Page not found");
             }
@@ -233,6 +229,23 @@ public class MyHTTPServer  extends NanoHTTPD {
             }
         }
 
+    }
+
+    private String jsonData() {
+        return new JSONObject() {{
+            try {
+                put("socketIsConnected", socketClient.isConnected());
+                put("deviceName", Device.getDeviceName());
+                put("deviceId", Device.getDeviceId());
+                put("loginTokenExist", myPreferences.isLoginTokenExist());
+                put("signalStrength", NetworkSignalStrengthChecker.getSignalStrength());
+
+                Calendar calendar = Calendar.getInstance();
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+                put("currentDate", sdf.format(calendar.getTime()) );
+            } catch (JSONException ignore) {
+            }
+        }}.toString();
     }
 
     private Response loadPage(String filename) {
@@ -277,6 +290,7 @@ public class MyHTTPServer  extends NanoHTTPD {
 
         Map<String, String> context = new HashMap<>();
         context.put("content", content);
+        context.put("app_data", this.jsonData());
 
         StringWriter writer = new StringWriter();
         mustache.execute(writer, context).flush();

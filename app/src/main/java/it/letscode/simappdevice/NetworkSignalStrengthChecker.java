@@ -21,6 +21,8 @@ public class NetworkSignalStrengthChecker {
     private long lastLoggedTime = 0;
     private static final long LOG_INTERVAL = 10000; // 10 sekund w milisekundach
 
+    private static int lastKnownSignalStrength;
+
     public NetworkSignalStrengthChecker(Context context) {
         this.context = context;
     }
@@ -35,12 +37,13 @@ public class NetworkSignalStrengthChecker {
 
                 long currentTime = System.currentTimeMillis();
                 if (currentTime - lastLoggedTime >= LOG_INTERVAL) {
-                    int signalStrengthValue = getSignalStrength(signalStrength);
+                    lastKnownSignalStrength = convertSignal(signalStrength);
 
                     // Logowanie zasięgu w konsoli
-                    System.out.println("Signal Strength: " + signalStrengthValue + " dBm");
+                    System.out.println("Signal Strength: " + lastKnownSignalStrength + " dBm");
 
                     lastLoggedTime = currentTime;
+
                 }
             }
         };
@@ -49,7 +52,7 @@ public class NetworkSignalStrengthChecker {
         telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
     }
 
-    private int getSignalStrength(SignalStrength signalStrength) {
+    private int convertSignal(SignalStrength signalStrength) {
         if (signalStrength == null) {
             return 0;
         } else {
@@ -57,9 +60,12 @@ public class NetworkSignalStrengthChecker {
                 int signalDbm = signalStrength.getGsmSignalStrength();
                 return (2 * signalDbm) - 113; // Konwersja sygnału GSM na dBm
             } else {
-                int signalDbm = signalStrength.getCdmaDbm();
-                return signalDbm;
+                return signalStrength.getCdmaDbm();
             }
         }
+    }
+
+    public static int getSignalStrength() {
+        return lastKnownSignalStrength;
     }
 }
