@@ -3,6 +3,7 @@
     <p><b>Device Name</b>: <span id="deviceName"></span></p>
     <p><b>Device ID</b>: <span id="deviceId"></span></p>
     <p><b>Signal Strength</b>: <span id="signalStrength"></span> dBm</p>
+    <p><b>Controller HTTP Session</b>: <span id="controllerHttpSession"></span></p>
     <p><b>Current Date</b>: <span id="currentDate"></span></p>
 </div>
 
@@ -39,6 +40,11 @@
             document.getElementById('signalStrength').innerHTML = data.signalStrength;
 
             document.getElementById('currentDate').innerHTML = data.currentDate;
+
+
+            const controllerHttpSessionElement = document.getElementById('controllerHttpSession');
+            controllerHttpSessionElement.style = "color: " + ( data.ping?.isLoggedIn ? 'lime' : 'red' );
+            controllerHttpSessionElement.innerHTML = ( data.ping?.isLoggedIn ? 'Connected' : 'Disconnected' );
         }
     };
 

@@ -9,7 +9,7 @@ public class ControllerHttpGateway {
 //    final String hostUrl = "https://panel-dev.simply-connect.ovh";
 
     private static final String TAG = "HTTP Controller Gateway";
-
+    private final SocketClient socketClient = new SocketClient();
     OwnHttpClient httpClient;
 
     MyPreferences myPreferences;
@@ -20,7 +20,6 @@ public class ControllerHttpGateway {
 
     public void login(String token) {
 
-        SocketClient socketClient = new SocketClient();
 
         socketClient.previousStop();
 
@@ -127,4 +126,39 @@ public class ControllerHttpGateway {
             }
         });
     }
+
+    public void ping() {
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("ping", true);
+            json.put("loginToken", myPreferences.getLoginToken());
+            json.put("socketConnected", socketClient.isConnected());
+        } catch (JSONException ignored) {
+
+        }
+        httpClient.post(myPreferences.getHostUrl() + "/device-api/ping", json.toString(), new OwnHttpClient.HttpResponseCallback() {
+            @Override
+            public void onResponse(String responseBody, int responseCode) {
+                System.out.println(responseBody);
+
+                try {
+                    JSONObject obj = new JSONObject(responseBody);
+
+                    PingServer.deviceId = obj.getString("deviceId");
+                    PingServer.isLoggedIn = obj.getBoolean("isLoggedIn");
+
+                } catch (JSONException ignored) {
+                    Log.d(TAG, "Nie udalo sie odczytac json z pingu");
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                Log.d(TAG, "Ping send error: ");
+                System.out.println(throwable.getMessage());
+            }
+        });
+    }
+
 }

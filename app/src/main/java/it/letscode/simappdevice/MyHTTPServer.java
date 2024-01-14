@@ -243,6 +243,11 @@ public class MyHTTPServer  extends NanoHTTPD {
                 Calendar calendar = Calendar.getInstance();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
                 put("currentDate", sdf.format(calendar.getTime()) );
+
+                put("ping", new JSONObject(){{
+                    put("deviceId", PingServer.deviceId);
+                    put("isLoggedIn", PingServer.isLoggedIn);
+                }});
             } catch (JSONException ignore) {
             }
         }}.toString();

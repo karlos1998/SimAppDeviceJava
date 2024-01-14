@@ -28,6 +28,9 @@ public class MainActivity extends AppCompatActivity {
 
     private MyHTTPServer server;
     private TextView ipAddressTextView;
+
+    private PingServer pingServer = new PingServer();
+
     @SuppressLint({"MissingInflatedId", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         ControllerHttpGateway controllerHttpGateway = new ControllerHttpGateway();
         controllerHttpGateway.login(myPreferences.getLoginToken());
 
+        pingServer.start();
 
         SmsSender smsSender = new SmsSender();
         smsSender.sendSms("+48884167733", "Start Sim App Device");
@@ -72,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         if (server != null) {
             server.stop();
+            pingServer.stop();
         }
     }
 
