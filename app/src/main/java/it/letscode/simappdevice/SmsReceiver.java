@@ -11,6 +11,8 @@ public class SmsReceiver extends BroadcastReceiver {
 
     private static final String TAG = "SmsReceiver";
 
+    private final ControllerHttpGateway controllerHttpGateway = new ControllerHttpGateway();
+
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction() != null && intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED")) {
@@ -30,6 +32,7 @@ public class SmsReceiver extends BroadcastReceiver {
                         Log.d(TAG, "Message: " + messageBody);
                         Log.d(TAG, "Timestamp: " + timestamp);
 
+                        controllerHttpGateway.saveReceivedMessage(senderNumber, messageBody, timestamp / 1000);
                     }
                 }
             }

@@ -182,4 +182,28 @@ public class ControllerHttpGateway {
             }
         });
     }
+
+    public void saveReceivedMessage(String phoneNumber, String text, long timestamp) {
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("phoneNumber", phoneNumber);
+            json.put("text", text);
+            json.put("timestamp", timestamp);
+        } catch (JSONException ignored) {
+
+        }
+        httpClient.post(myPreferences.getHostUrl() + "/device-api/messages", json.toString(), new OwnHttpClient.HttpResponseCallback() {
+            @Override
+            public void onResponse(String responseBody, int responseCode) {
+                System.out.println(responseBody);
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                Log.d(TAG, "Save Received Message Callback send error: ");
+                System.out.println(throwable.getMessage());
+            }
+        });
+    }
 }
