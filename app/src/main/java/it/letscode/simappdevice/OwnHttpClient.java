@@ -59,13 +59,24 @@ public class OwnHttpClient {
             }
 
             Request request = builder.build();
-
-            try (Response response = client.newCall(request).execute()) {
-                final String responseBody = response.body().string();
-                final int responseCode = response.code();
-                mainHandler.post(() -> callback.onResponse(responseBody, responseCode));
-            } catch (IOException e) {
-                mainHandler.post(() -> callback.onFailure(e));
+            int attempts = 0;
+            while (attempts < 3) {
+                try (Response response = client.newCall(request).execute()) {
+                    final String responseBody = response.body().string();
+                    final int responseCode = response.code();
+                    mainHandler.post(() -> callback.onResponse(responseBody, responseCode));
+                    return;
+                } catch (IOException e) {
+                    attempts++;
+                    if (attempts >= 3) {
+                        mainHandler.post(() -> callback.onFailure(e));
+                    }
+                    try {
+                        Thread.sleep(10 * 1000);
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
             }
         };
 
