@@ -34,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint({"MissingInflatedId", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        ApplicationContextProvider.initialize(getApplicationContext());
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 

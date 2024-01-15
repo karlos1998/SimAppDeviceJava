@@ -36,59 +36,51 @@ public class OwnHttpClient {
     }
 
 
-    public void post(String url, String json, HttpResponseCallback callback) {
-
+    private void makeRequest(String method, String url, String json, HttpResponseCallback callback) {
         Log.d(TAG, "Request JSON: " + json);
         Log.d(TAG, "Request Bearer: " + Device.getAuthToken());
         Runnable task = () -> {
             RequestBody body = RequestBody.create(json, MediaType.parse("application/json; charset=utf-8"));
-            Request request = new Request.Builder()
+            Request.Builder builder = new Request.Builder()
                     .url(url)
-                    .post(body)
                     .addHeader("Accept", "application/json")
-                    .addHeader("Authorization", "Bearer " + Device.getAuthToken())
-                    .build();
+                    .addHeader("Authorization", "Bearer " + Device.getAuthToken());
+
+            switch (method) {
+                case "POST":
+                    builder.post(body);
+                    break;
+                case "PUT":
+                    builder.put(body);
+                    break;
+                case "PATCH":
+                    builder.patch(body);
+                    break;
+            }
+
+            Request request = builder.build();
+
             try (Response response = client.newCall(request).execute()) {
                 final String responseBody = response.body().string();
                 final int responseCode = response.code();
-                mainHandler.post(() -> {
-                    callback.onResponse(responseBody, responseCode);
-                });
+                mainHandler.post(() -> callback.onResponse(responseBody, responseCode));
             } catch (IOException e) {
-                mainHandler.post(() -> {
-                    callback.onFailure(e);
-                });
+                mainHandler.post(() -> callback.onFailure(e));
             }
         };
 
         executor.execute(task);
     }
 
+    public void post(String url, String json, HttpResponseCallback callback) {
+        makeRequest("POST", url, json, callback);
+    }
+
     public void put(String url, String json, HttpResponseCallback callback) {
+        makeRequest("PUT", url, json, callback);
+    }
 
-        Log.d(TAG, "Request JSON: " + json);
-        Log.d(TAG, "Request Bearer: " + Device.getAuthToken());
-        Runnable task = () -> {
-            RequestBody body = RequestBody.create(json, MediaType.parse("application/json; charset=utf-8"));
-            Request request = new Request.Builder()
-                    .url(url)
-                    .put(body)
-                    .addHeader("Accept", "application/json")
-                    .addHeader("Authorization", "Bearer " + Device.getAuthToken())
-                    .build();
-            try (Response response = client.newCall(request).execute()) {
-                final String responseBody = response.body().string();
-                final int responseCode = response.code();
-                mainHandler.post(() -> {
-                    callback.onResponse(responseBody, responseCode);
-                });
-            } catch (IOException e) {
-                mainHandler.post(() -> {
-                    callback.onFailure(e);
-                });
-            }
-        };
-
-        executor.execute(task);
+    public void patch(String url, String json, HttpResponseCallback callback) {
+        makeRequest("PATCH", url, json, callback);
     }
 }

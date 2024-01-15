@@ -6,16 +6,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.telephony.SmsManager;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.util.ArrayList;
 
 
 public class SmsSender {
-
-    private Context context;
-
-    public SmsSender(Context context) {
-        this.context = context;
-    }
 
     public SmsSender() {
 
@@ -32,20 +28,16 @@ public class SmsSender {
 
             ArrayList<String> parts = smsManager.divideMessage(message);
 
-            if(context != null) {
-                Intent sentIntent = new Intent("SMS_SENT");
-                sentIntent.putExtra("phoneNumber", phoneNumber);
-                sentIntent.putExtra("messageId", messageId);
+            Intent sentIntent = new Intent("SMS_SENT");
+            sentIntent.putExtra("phoneNumber", phoneNumber);
+            sentIntent.putExtra("messageId", messageId);
 
-                PendingIntent sentPendingIntent = PendingIntent.getBroadcast(context, messageId, sentIntent, PendingIntent.FLAG_IMMUTABLE);
+            PendingIntent sentPendingIntent = PendingIntent.getBroadcast(ApplicationContextProvider.getApplicationContext(), messageId, sentIntent, PendingIntent.FLAG_IMMUTABLE);
 
 
-                ArrayList<PendingIntent> sentPendingIntents = new ArrayList<>();
-                sentPendingIntents.add(sentPendingIntent);
-                smsManager.sendMultipartTextMessage(phoneNumber, null, parts, sentPendingIntents, null);
-            } else {
-                smsManager.sendMultipartTextMessage(phoneNumber, null, parts, null, null);
-            }
+            ArrayList<PendingIntent> sentPendingIntents = new ArrayList<>();
+            sentPendingIntents.add(sentPendingIntent);
+            smsManager.sendMultipartTextMessage(phoneNumber, null, parts, sentPendingIntents, null);
 
         } catch (Exception e) {
             System.out.println("Wysylanie wiadomosci nie powiodlo sie:");

@@ -161,4 +161,25 @@ public class ControllerHttpGateway {
         });
     }
 
+    public void sendMessageCallback(int messageId, String responseCode) {
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("responseCode", responseCode);
+        } catch (JSONException ignored) {
+
+        }
+        httpClient.patch(myPreferences.getHostUrl() + "/device-api/messages/" + messageId, json.toString(), new OwnHttpClient.HttpResponseCallback() {
+            @Override
+            public void onResponse(String responseBody, int responseCode) {
+                System.out.println(responseBody);
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                Log.d(TAG, "Send Message Callback send error: ");
+                System.out.println(throwable.getMessage());
+            }
+        });
+    }
 }
