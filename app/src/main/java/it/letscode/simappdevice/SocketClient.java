@@ -145,16 +145,16 @@ public class SocketClient {
         /**
          * Testowy listener prywatnego kanalu
          */
-        privateChannel.bind("App\\Events\\Test", new PrivateChannelEventListener() {
+        privateChannel.bind("App\\Events\\SendMessage", new PrivateChannelEventListener() {
             @Override
             public void onEvent(PusherEvent event) {
-                System.out.print("Pusher private-device.1 TestEvent Laravel: ");
+                System.out.print("New Event from laravel: SendMessage ");
                 System.out.println(event.getData());
                 try {
                     JSONObject obj = new JSONObject(event.getData());
 
                     SmsSender smsSender = new SmsSender();
-                    smsSender.sendSms(obj.getString("phoneNumber"), obj.getString("text"));
+                    smsSender.sendSms(obj.getString("phoneNumber"), obj.getString("text"), obj.getInt("messageId"));
 
                 } catch (JSONException e) {
                     throw new RuntimeException(e);

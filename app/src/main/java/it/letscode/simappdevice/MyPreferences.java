@@ -9,7 +9,6 @@ public class MyPreferences {
     private static final String PREFS_NAME = "MyPrefsFile";
 
 
-
     private static final String HOST_URL_KEY = "hostUrl";
     private static final String DEFAULT_HOST_URL = "http://192.168.98.113";
 
