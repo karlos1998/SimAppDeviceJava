@@ -13,6 +13,7 @@ import java.util.ArrayList;
 
 public class SmsSender {
 
+    private final ControllerHttpGateway controllerHttpGateway = new ControllerHttpGateway();
     public SmsSender() {
 
     }
@@ -22,6 +23,8 @@ public class SmsSender {
         sendSms(phoneNumber, message, -randomId);
     }
     public void sendSms(String phoneNumber, String message, int messageId) {
+
+        controllerHttpGateway.markMessageAsOrderReceived(messageId, true, null);
 
         try {
             SmsManager smsManager = SmsManager.getDefault();
@@ -40,6 +43,7 @@ public class SmsSender {
             smsManager.sendMultipartTextMessage(phoneNumber, null, parts, sentPendingIntents, null);
 
         } catch (Exception e) {
+            controllerHttpGateway.markMessageAsOrderReceived(messageId, false, e.toString());
             System.out.println("Wysylanie wiadomosci nie powiodlo sie:");
             e.printStackTrace();
         }

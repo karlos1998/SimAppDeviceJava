@@ -36,6 +36,7 @@ public class SocketClient {
     private static Pusher pusher;
 
     private MyPreferences myPreferences;
+
     public SocketClient() {
         this.myPreferences = new MyPreferences();
     }

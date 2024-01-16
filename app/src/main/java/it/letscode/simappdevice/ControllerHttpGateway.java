@@ -169,7 +169,7 @@ public class ControllerHttpGateway {
         } catch (JSONException ignored) {
 
         }
-        httpClient.patch(myPreferences.getHostUrl() + "/device-api/messages/" + messageId, json.toString(), new OwnHttpClient.HttpResponseCallback() {
+        httpClient.patch(myPreferences.getHostUrl() + "/device-api/messages/" + messageId + "/update-response-code", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
             public void onResponse(String responseBody, int responseCode) {
                 System.out.println(responseBody);
@@ -194,6 +194,31 @@ public class ControllerHttpGateway {
 
         }
         httpClient.post(myPreferences.getHostUrl() + "/device-api/messages", json.toString(), new OwnHttpClient.HttpResponseCallback() {
+            @Override
+            public void onResponse(String responseBody, int responseCode) {
+                System.out.println(responseBody);
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                Log.d(TAG, "Save Received Message Callback send error: ");
+                System.out.println(throwable.getMessage());
+            }
+        });
+    }
+
+    public void markMessageAsOrderReceived(Integer messageId, boolean isAccepted, String errorMessage) {
+
+        if(messageId < 0) return;
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("isAccepted", isAccepted);
+            json.put("errorMessage", errorMessage);
+        } catch (JSONException ignored) {
+
+        }
+        httpClient.patch(myPreferences.getHostUrl() + "/device-api/messages/" + messageId + "/order-received", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
             public void onResponse(String responseBody, int responseCode) {
                 System.out.println(responseBody);
