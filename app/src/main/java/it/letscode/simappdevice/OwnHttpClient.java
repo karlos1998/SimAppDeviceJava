@@ -70,11 +70,13 @@ public class OwnHttpClient {
                     attempts++;
                     if (attempts >= 3) {
                         mainHandler.post(() -> callback.onFailure(e));
-                    }
-                    try {
-                        Thread.sleep(10 * 1000);
-                    } catch (InterruptedException ex) {
-                        throw new RuntimeException(ex);
+                    } else {
+                        try {
+                            Thread.sleep(10 * 1000);
+                            System.out.println("HTTP Request try again: " + url);
+                        } catch (InterruptedException ex) {
+                            throw new RuntimeException(ex);
+                        }
                     }
                 }
             }
