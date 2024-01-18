@@ -123,9 +123,16 @@ public class MmsReceiver extends BroadcastReceiver {
 
     public void sendAttachments(String messageId, List<AttachmentDetails> attachmentDetailsList) {
         for (AttachmentDetails attachmentDetails : attachmentDetailsList) {
-            List<String> parts = splitIntoParts(attachmentDetails.getText(), 102400); // Dzielenie na części o rozmiarze 0.1 MB
             String messageAttachmentUuid = UUID.randomUUID().toString();
-            sendPart(messageId, messageAttachmentUuid, attachmentDetails, parts, 0);
+
+            if(attachmentDetails.getText() != null) {
+                List<String> parts = splitIntoParts(attachmentDetails.getText(), 102400); // Dzielenie na części o rozmiarze 0.1 MB
+                sendPart(messageId, messageAttachmentUuid, attachmentDetails, parts, 0);
+            } else {
+                List<String> parts = new ArrayList<String>();
+                parts.add("UNKNOWN_TYPE");
+                sendPart(messageId, messageAttachmentUuid, attachmentDetails, parts, 0);
+            }
         }
     }
 
@@ -200,7 +207,7 @@ public class MmsReceiver extends BroadcastReceiver {
                     String partId = cPart.getString(cPart.getColumnIndex("_id"));
                     String type = cPart.getString(cPart.getColumnIndex("ct"));
 
-                    String text = "";
+                    String text = null;
 
                     if ("text/plain".equals(type)) {
                         String data = cPart.getString(cPart.getColumnIndex("_data"));
