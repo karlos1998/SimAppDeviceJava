@@ -231,4 +231,28 @@ public class ControllerHttpGateway {
             }
         });
     }
+
+    public void sendAttachmentToMessage(String tmpUuid, String contentType, String value) {
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("tmp_uuid", tmpUuid);
+            json.put("content_type", contentType);
+            json.put("value", value);
+        } catch (JSONException ignored) {
+
+        }
+        httpClient.post(myPreferences.getHostUrl() + "/device-api/message-attachments", json.toString(), new OwnHttpClient.HttpResponseCallback() {
+            @Override
+            public void onResponse(String responseBody, int responseCode) {
+                System.out.println(responseBody);
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                Log.d(TAG, "Save Received Message Callback send error: ");
+                System.out.println(throwable.getMessage());
+            }
+        });
+    }
 }

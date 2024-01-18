@@ -36,6 +36,8 @@ public class SmsReceiver extends BroadcastReceiver {
                     }
                 }
             }
+        } else {
+            Log.d(TAG, "Unknown Data typy: " + intent.getAction());
         }
     }
 }

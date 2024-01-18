@@ -205,6 +205,13 @@ public class MyHTTPServer  extends NanoHTTPD {
                 case "/data.json":
 
                     return newFixedLengthResponse(Response.Status.OK, "application/json", this.jsonData());
+
+                case "/last_mms": {
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("lastMmsData", myPreferences.getLastMmsAttachment());
+                    return loadPage("last_mms.html", data);
+                }
+
                 default:
                     return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/html", "Page not found");
             }
