@@ -15,6 +15,9 @@ import android.telephony.SmsMessage;
 import android.util.Base64;
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -23,6 +26,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class MmsReceiver extends BroadcastReceiver {
@@ -33,13 +39,32 @@ public class MmsReceiver extends BroadcastReceiver {
 
     private static final ControllerHttpGateway controllerHttpGateway = new ControllerHttpGateway();
     private static Integer skipMms = 0;
+
+    public static class AttachmentDetails {
+        private final String type;
+        private final String text;
+
+        public AttachmentDetails(String type, String text) {
+            this.type = type;
+            this.text = text;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public String getText() {
+            return text;
+        }
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         System.out.println("Przyjęto mms do odczytania");
         skipMms++;
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             readMMSAttachments(context);
-        }, 10000); // Opóźnienie 1 sekundy
+        }, 10000);
     }
 
     public static void readMMSAttachments(Context context) {
@@ -57,10 +82,85 @@ public class MmsReceiver extends BroadcastReceiver {
                 Log.d(TAG, "Sender Number: " + senderNumber);
 
                 // Przetwarzanie załączników
-                processAttachments(context, mmsId);
+                List<AttachmentDetails> attachmentDetailsList = processAttachments(context, mmsId);
+
+                //Pobranie daty wiadomosci
+                long timestamp = getMmsTimestamp(context, mmsId);
+
+                createMessageAndSendAttachments(senderNumber, timestamp, attachmentDetailsList);
             }
         }
     }
+
+    private static void createMessageAndSendAttachments(String senderNumber, long timestamp, List<AttachmentDetails> attachmentDetailsList) {
+        controllerHttpGateway.saveReceivedMessage(senderNumber, null, timestamp, new ControllerHttpGateway.ResponseCallback() {
+            @Override
+            public void onResponse(JSONObject data, int responseCode) {
+                if(responseCode != 200)
+                {
+                    System.out.println("Bład zapisywania MMS: " + responseCode);
+                    return;
+                }
+                try {
+                    String messageId = data.getString("id");
+
+                   MmsReceiver mmsReceiver = new MmsReceiver();
+                   mmsReceiver.sendAttachments(messageId, attachmentDetailsList);
+                } catch (JSONException ignored) {
+
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                System.out.println("Nie udało sie zapisac MMS w controllerze.");
+            }
+        });
+    }
+
+
+    /////////////////////////////////////////////////////////
+
+    public void sendAttachments(String messageId, List<AttachmentDetails> attachmentDetailsList) {
+        for (AttachmentDetails attachmentDetails : attachmentDetailsList) {
+            List<String> parts = splitIntoParts(attachmentDetails.getText(), 102400); // Dzielenie na części o rozmiarze 0.1 MB
+            String messageAttachmentUuid = UUID.randomUUID().toString();
+            sendPart(messageId, messageAttachmentUuid, attachmentDetails, parts, 0);
+        }
+    }
+
+    // Metoda do wysyłania części załącznika
+    private void sendPart(String messageId, String messageAttachmentUuid, AttachmentDetails attachmentDetails, List<String> parts, int index) {
+        if (index >= parts.size()) {
+            return; // Wszystkie części zostały wysłane
+        }
+
+        String part = parts.get(index);
+        controllerHttpGateway.sendAttachmentToMessage(messageId, messageAttachmentUuid, attachmentDetails.getType(), part, ((index + 1) >= parts.size()), new ControllerHttpGateway.ResponseCallback() {
+            @Override
+            public void onResponse(JSONObject data, int responseCode) {
+                // Wysyłanie kolejnej części
+                sendPart(messageId, messageAttachmentUuid, attachmentDetails, parts, index + 1);
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                // Obsługa błędu...
+            }
+        });
+    }
+
+    // Metoda do dzielenia tekstu na części
+    private List<String> splitIntoParts(String text, int partSize) {
+        List<String> parts = new ArrayList<>();
+        int length = text.length();
+        for (int i = 0; i < length; i += partSize) {
+            parts.add(text.substring(i, Math.min(length, i + partSize)));
+        }
+        return parts;
+    }
+
+    /////////////////////////////////////////////////////////
 
     private static String getSenderNumber(Context context, int mmsId) {
         Uri uri = Uri.parse("content://mms/" + mmsId + "/addr");
@@ -74,9 +174,23 @@ public class MmsReceiver extends BroadcastReceiver {
         return senderNumber;
     }
 
-    private static void processAttachments(Context context, int mmsId) {
+    private static long getMmsTimestamp(Context context, int mmsId) {
+        Uri uri = Uri.parse("content://mms/" + mmsId);
+        String[] projection = new String[]{"date"};
+        long timestamp = 0;
 
-        String randomUuid = UUID.randomUUID().toString();
+        try (Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                timestamp = cursor.getLong(cursor.getColumnIndex("date"));
+            }
+        }
+
+        return timestamp;
+    }
+
+    private static List<AttachmentDetails> processAttachments(Context context, int mmsId) {
+
+        List<AttachmentDetails> attachmentDetailsList = new ArrayList<AttachmentDetails>();
 
         String selectionPart = "mid=" + mmsId;
         Uri uri = Uri.parse("content://mms/part");
@@ -86,7 +200,7 @@ public class MmsReceiver extends BroadcastReceiver {
                     String partId = cPart.getString(cPart.getColumnIndex("_id"));
                     String type = cPart.getString(cPart.getColumnIndex("ct"));
 
-                    String text = null;
+                    String text = "";
 
                     if ("text/plain".equals(type)) {
                         String data = cPart.getString(cPart.getColumnIndex("_data"));
@@ -109,11 +223,14 @@ public class MmsReceiver extends BroadcastReceiver {
                         myPreferences.setLastMmsAttachment(text);
                     }
 
-                    controllerHttpGateway.sendAttachmentToMessage(randomUuid, type, text);
+                    attachmentDetailsList.add(new AttachmentDetails(type, text));
+//                    controllerHttpGateway.sendAttachmentToMessage(randomUuid, type, text);
 
                 } while (cPart.moveToNext());
             }
         }
+
+        return attachmentDetailsList;
     }
 
     private static String getTextFromPartFile(Context context, String dataPath) {

@@ -5,6 +5,8 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import okhttp3.Response;
+
 public class ControllerHttpGateway {
 //    final String hostUrl = "https://panel-dev.simply-connect.ovh";
 
@@ -16,6 +18,11 @@ public class ControllerHttpGateway {
     public ControllerHttpGateway() {
         httpClient = new OwnHttpClient();
         this.myPreferences = new MyPreferences();
+    }
+
+    public interface ResponseCallback {
+        void onResponse(JSONObject data, int responseCode);
+        void onFailure(Throwable throwable);
     }
 
     public void login(String token) {
@@ -183,7 +190,7 @@ public class ControllerHttpGateway {
         });
     }
 
-    public void saveReceivedMessage(String phoneNumber, String text, long timestamp) {
+    public void saveReceivedMessage(String phoneNumber, String text, long timestamp, ResponseCallback responseCallback) {
 
         JSONObject json = new JSONObject();
         try {
@@ -197,13 +204,29 @@ public class ControllerHttpGateway {
             @Override
             public void onResponse(String responseBody, int responseCode) {
                 System.out.println(responseBody);
+                try {
+                    JSONObject obj = new JSONObject(responseBody);
+                    responseCallback.onResponse(obj, responseCode);
+                } catch (JSONException ignored) {
+                    Log.d(TAG, "Nie udalo sie odczytac json z pingu");
+                }
             }
 
             @Override
             public void onFailure(Throwable throwable) {
                 Log.d(TAG, "Save Received Message Callback send error: ");
                 System.out.println(throwable.getMessage());
+                responseCallback.onFailure(throwable);
             }
+        });
+    }
+
+    public void saveReceivedMessage(String phoneNumber, String text, long timestamp) {
+        saveReceivedMessage(phoneNumber, text, timestamp, new ResponseCallback() {
+            @Override
+            public void onResponse(JSONObject data, int responseCode) {}
+            @Override
+            public void onFailure(Throwable throwable) {}
         });
     }
 
@@ -232,20 +255,26 @@ public class ControllerHttpGateway {
         });
     }
 
-    public void sendAttachmentToMessage(String tmpUuid, String contentType, String value) {
+    public void sendAttachmentToMessage(String messageId, String messageAttachmentUuid, String contentType, String value, Boolean lastPart, ResponseCallback responseCallback) {
 
         JSONObject json = new JSONObject();
         try {
-            json.put("tmp_uuid", tmpUuid);
             json.put("content_type", contentType);
             json.put("value", value);
+            json.put("uuid", messageAttachmentUuid);
+            json.put("ready", lastPart);
         } catch (JSONException ignored) {
 
         }
-        httpClient.post(myPreferences.getHostUrl() + "/device-api/message-attachments", json.toString(), new OwnHttpClient.HttpResponseCallback() {
+        httpClient.put(myPreferences.getHostUrl() + "/device-api/messages/" + messageId + "/attachments", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
             public void onResponse(String responseBody, int responseCode) {
                 System.out.println(responseBody);
+                try {
+                    responseCallback.onResponse(new JSONObject(responseBody), responseCode);
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
             @Override
