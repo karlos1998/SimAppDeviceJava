@@ -33,6 +33,11 @@ import java.util.UUID;
 
 public class MmsReceiver extends BroadcastReceiver {
 
+    /**
+     * TODO: Refaktoryzacja tej klasy. jest tu straszny pierdzielnik. pobieranie załączników trzeba by rozbić na osobna klase.
+     * Do tego funkcje od typow zalacznikow powinny zostac w miare ujednolicone.
+     */
+
     private static final String TAG = "MMSReceiver";
 
     private static final MyPreferences myPreferences = new MyPreferences();
@@ -228,7 +233,14 @@ public class MmsReceiver extends BroadcastReceiver {
                         System.out.println("BASE64: " + text.length());
 
                         myPreferences.setLastMmsAttachment(text);
+                    } else if ("video/3gpp".equals(type)) {
+                        Uri partUri = Uri.withAppendedPath(uri, partId);
+                        text = convertVideoToBase64(context, partUri);
+
+                        //TODO: źle działa - zawartość nie jest poprawna...
+                        System.out.println("BASE64 Video: " + text.length());
                     }
+
 
                     attachmentDetailsList.add(new AttachmentDetails(type, text));
 //                    controllerHttpGateway.sendAttachmentToMessage(randomUuid, type, text);
@@ -238,6 +250,32 @@ public class MmsReceiver extends BroadcastReceiver {
         }
 
         return attachmentDetailsList;
+    }
+    
+    private static String convertVideoToBase64(Context context, Uri uri) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try (InputStream inputStream = context.getContentResolver().openInputStream(uri)) {
+            if (inputStream == null) {
+                return null;
+            }
+
+            byte[] buf = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buf)) != -1) {
+                outputStream.write(buf, 0, bytesRead);
+            }
+
+            return Base64.encodeToString(outputStream.toByteArray(), Base64.NO_WRAP);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                outputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
 
     private static String getTextFromPartFile(Context context, String dataPath) {
