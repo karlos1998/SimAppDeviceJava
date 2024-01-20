@@ -13,6 +13,7 @@ public class ControllerHttpGateway {
     private final SocketClient socketClient = new SocketClient();
     OwnHttpClient httpClient;
 
+    private final SystemInfo systemInfo = new SystemInfo();
     MyPreferences myPreferences;
     public ControllerHttpGateway() {
         httpClient = new OwnHttpClient();
@@ -32,9 +33,9 @@ public class ControllerHttpGateway {
         JSONObject json = new JSONObject();
         try {
             json.put("token", token);
-        } catch (JSONException ignored) {
+            json.put("systemInfo", systemInfo.getJsonDetails());
+        } catch (JSONException ignored) {}
 
-        }
         httpClient.post(myPreferences.getHostUrl() + "/device-api/login", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
             public void onResponse(String responseBody, int responseCode) {
@@ -76,6 +77,7 @@ public class ControllerHttpGateway {
         JSONObject json = new JSONObject();
         try {
             json.put("token", token);
+            json.put("systemInfo", systemInfo.getJsonDetails());
         } catch (JSONException ignored) {
 
         }
