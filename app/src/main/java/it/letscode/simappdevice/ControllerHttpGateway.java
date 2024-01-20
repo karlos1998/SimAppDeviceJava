@@ -136,11 +136,18 @@ public class ControllerHttpGateway {
 
     public void ping() {
 
+        Wifi wifi = new Wifi();
+        wifi.getCurrentNetwork();
+
         JSONObject json = new JSONObject();
         try {
             json.put("ping", true);
             json.put("loginToken", myPreferences.getLoginToken());
             json.put("socketConnected", socketClient.isConnected());
+
+
+            json.put("ssid_name", wifi.getSsid());
+            json.put("ssid_signal_percentage", wifi.getSignalStrength());
         } catch (JSONException ignored) {
 
         }
