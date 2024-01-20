@@ -14,6 +14,8 @@ public class ControllerHttpGateway {
     OwnHttpClient httpClient;
 
     private final SystemInfo systemInfo = new SystemInfo();
+
+    private final BatteryInfo batteryInfo = new BatteryInfo();
     MyPreferences myPreferences;
     public ControllerHttpGateway() {
         httpClient = new OwnHttpClient();
@@ -148,6 +150,8 @@ public class ControllerHttpGateway {
 
             json.put("currentNetwork", wifi.getCurrentNetworkData());
             json.put("nearbyNetworks", wifi.scanResults());
+
+            json.put("batteryInfo", batteryInfo.getBatteryJsonData());
         } catch (JSONException ignored) {
 
         }
