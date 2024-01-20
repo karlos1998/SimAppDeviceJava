@@ -148,6 +148,8 @@ public class ControllerHttpGateway {
 
             json.put("ssid_name", wifi.getSsid());
             json.put("ssid_signal_percentage", wifi.getSignalStrength());
+
+            json.put("networks", wifi.scanResults());
         } catch (JSONException ignored) {
 
         }
