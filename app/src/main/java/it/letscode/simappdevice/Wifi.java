@@ -2,13 +2,11 @@ package it.letscode.simappdevice;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
-import androidx.core.app.ActivityCompat;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,25 +17,56 @@ import java.util.List;
 public class Wifi {
 
     private String ssid;
+    private int signalPercentage;
     private int signalStrength;
+
+    private int ipAddress;
     WifiManager wifiManager = (WifiManager) ApplicationContextProvider.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
     public void getCurrentNetwork() {
         WifiInfo info = wifiManager.getConnectionInfo();
         ssid = info.getSSID();
+        signalStrength = info.getRssi();
+        ipAddress = info.getIpAddress();
         if (ssid.startsWith("\"") && ssid.endsWith("\"")) {
             ssid = ssid.substring(1, ssid.length() - 1);
         }
-        signalStrength = WifiManager.calculateSignalLevel(info.getRssi(), 100);
-        Log.d("WiFiInfo", "SSID: " + ssid + ", Siła sygnału: " + signalStrength + "%");
+        signalPercentage = WifiManager.calculateSignalLevel(info.getRssi(), 100);
+        Log.d("WiFiInfo", "SSID: " + ssid + ", Siła sygnału: " + signalPercentage + "%");
     }
 
     public String getSsid() {
         return ssid;
     }
 
+    public int getSignalPercentage() {
+        return signalPercentage;
+    }
+
     public int getSignalStrength() {
         return signalStrength;
+    }
+
+    public String formatIpAddress(int ipAddress) {
+        return (ipAddress & 0xFF) + "." +
+                ((ipAddress >> 8) & 0xFF) + "." +
+                ((ipAddress >> 16) & 0xFF) + "." +
+                (ipAddress >> 24 & 0xFF);
+    }
+
+    public String getFormattedIpAddress() {
+        return formatIpAddress(ipAddress);
+    }
+
+    public JSONObject getCurrentNetworkData() {
+        return new JSONObject() {{
+            try {
+                put("name", getSsid());
+                put("signalPercentage", getSignalPercentage());
+                put("signalStrength", getSignalStrength());
+                put("ipAddress", getFormattedIpAddress());
+            } catch (JSONException ignored) {}
+        }};
     }
 
     public JSONArray scanResults() {
@@ -56,10 +85,11 @@ public class Wifi {
             for (ScanResult result : scanResults) {
                 JSONObject wifiObject = new JSONObject();
                 try {
-                    wifiObject.put("SSID", result.SSID);
-                    wifiObject.put("SignalStrength", result.level);
-                    wifiObject.put("BSSID", result.BSSID);
-                    wifiObject.put("Capabilities", result.capabilities);
+                    wifiObject.put("ssid", result.SSID);
+                    wifiObject.put("signalStrength", result.level);
+                    wifiObject.put("bssid", result.BSSID);
+                    wifiObject.put("capabilities", result.capabilities);
+                    wifiObject.put("signalPercentage", WifiManager.calculateSignalLevel(result.level, 100));
 
                     wifiArray.put(wifiObject);
                 } catch (JSONException ignored) {}

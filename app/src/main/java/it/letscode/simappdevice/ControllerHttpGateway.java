@@ -5,7 +5,6 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import okhttp3.Response;
 
 public class ControllerHttpGateway {
 //    final String hostUrl = "https://panel-dev.simply-connect.ovh";
@@ -145,11 +144,8 @@ public class ControllerHttpGateway {
             json.put("loginToken", myPreferences.getLoginToken());
             json.put("socketConnected", socketClient.isConnected());
 
-
-            json.put("ssid_name", wifi.getSsid());
-            json.put("ssid_signal_percentage", wifi.getSignalStrength());
-
-            json.put("networks", wifi.scanResults());
+            json.put("currentNetwork", wifi.getCurrentNetworkData());
+            json.put("nearbyNetworks", wifi.scanResults());
         } catch (JSONException ignored) {
 
         }
