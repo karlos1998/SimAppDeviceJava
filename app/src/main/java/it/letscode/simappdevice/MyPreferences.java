@@ -74,4 +74,15 @@ public class MyPreferences {
         editor.putString(TOKEN_KEY, "");
         editor.apply();
     }
+
+
+    //////
+    public void setLastMmsAttachment(String data) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("LastMmsAttachment", data);
+        editor.apply();
+    }
+    public String getLastMmsAttachment() {
+        return prefs.getString("LastMmsAttachment", "");
+    }
 }
