@@ -154,6 +154,8 @@ public class ControllerHttpGateway {
             json.put("nearbyNetworks", wifi.scanResults());
 
             json.put("batteryInfo", batteryInfo.getBatteryJsonData());
+
+            json.put("deviceUuid", myPreferences.getDeviceUuid());
         } catch (JSONException ignored) {
 
         }
