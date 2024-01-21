@@ -9,10 +9,11 @@ public class SmsCommands {
 
     private final SmsSender smsSender = new SmsSender();
 
+    private final MyPreferences myPreferences = new MyPreferences();
     private final Wifi wifi = new Wifi();
     private String phoneNumber;
     public void checkSender(String phoneNumber, String text) {
-        if(phoneNumber.equals("+48884167733") && text.startsWith("#")) {
+        if(myPreferences.trustedNumberExist() && phoneNumber.equals(myPreferences.getTrustedNumber()) && text.startsWith("#")) {
             this.phoneNumber = phoneNumber;
 
             String command = text.substring(1);

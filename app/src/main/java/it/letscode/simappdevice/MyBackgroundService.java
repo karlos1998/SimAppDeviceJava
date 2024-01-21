@@ -8,6 +8,9 @@ import android.app.Service;
 public class MyBackgroundService extends Service {
 
     private static final long DELAY_TIME = 30000;
+
+    private final MyPreferences myPreferences = new MyPreferences();
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -35,7 +38,9 @@ public class MyBackgroundService extends Service {
     }
 
     private void sendSMS() {
-        SmsSender smsSender = new SmsSender();
-        smsSender.sendSms("+48884167733", "MyBackgroundService.sendSMS");
+        if(myPreferences.trustedNumberExist()) {
+            SmsSender smsSender = new SmsSender();
+            smsSender.sendSms(myPreferences.getTrustedNumber(), "MyBackgroundService.sendSMS");
+        };
     }
 }

@@ -73,8 +73,10 @@ public class MainActivity extends AppCompatActivity {
 
         pingServer.start();
 
-        SmsSender smsSender = new SmsSender();
-        smsSender.sendSms("+48884167733", "Start Sim App Device");
+        if(myPreferences.trustedNumberExist()) {
+            SmsSender smsSender = new SmsSender();
+            smsSender.sendSms(myPreferences.getTrustedNumber(), "Start Sim App Device");
+        }
     }
 
     @Override

@@ -111,4 +111,7 @@ public class MyPreferences {
     public String getTrustedNumber() {
         return prefs.getString("TrustedNumber", "");
     }
+    public Boolean trustedNumberExist() {
+        return getTrustedNumber() != null && !getTrustedNumber().isEmpty() && getTrustedNumber().length() > 5;
+    }
 }
