@@ -31,7 +31,7 @@ public class NetworkSignalStrengthChecker {
     public void startSignalStrengthCheck() {
         final TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 
-        ControllerHttpGateway controllerHttpGateway = new ControllerHttpGateway();
+//        ControllerHttpGateway controllerHttpGateway = new ControllerHttpGateway();
 
         PhoneStateListener phoneStateListener = new PhoneStateListener() {
             @Override
@@ -42,12 +42,9 @@ public class NetworkSignalStrengthChecker {
                 if (currentTime - lastLoggedTime >= LOG_INTERVAL) {
                     lastKnownSignalStrength = convertSignal(signalStrength);
 
-                    // Logowanie zasięgu w konsoli
-                    System.out.println("Signal Strength: " + lastKnownSignalStrength + " dBm");
-
                     lastLoggedTime = currentTime;
 
-                    controllerHttpGateway.sendSignalStrength(lastKnownSignalStrength);
+//                    controllerHttpGateway.sendSignalStrength(lastKnownSignalStrength);
 
                 }
             }
