@@ -65,8 +65,7 @@ public class MainActivity extends AppCompatActivity {
         String prefsContent = myPreferences.getAllPreferences();
         Log.d("SharedPreferences", "Zawartość: " + prefsContent);
 
-        ControllerHttpGateway controllerHttpGateway = new ControllerHttpGateway();
-        controllerHttpGateway.login(myPreferences.getLoginToken());
+        Device.login();
 
         pingServer.start();
 

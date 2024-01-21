@@ -182,8 +182,6 @@ public class MyHTTPServer  extends NanoHTTPD {
 
                         return redirect("/");
                     } else if(method == Method.DELETE) {
-                        myPreferences.forgetLoginToken();
-                        socketClient.previousStop();
                         Device.clear();
 
                         return newFixedLengthResponse(Response.Status.NO_CONTENT, null, null);

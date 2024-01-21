@@ -29,6 +29,7 @@ public class ControllerHttpGateway {
 
     public void login(String token) {
 
+        PingServer.resetNotLoggedCount();
 
         socketClient.previousStop();
 
@@ -58,6 +59,7 @@ public class ControllerHttpGateway {
 
                 } else {
                     Log.d(TAG, "Nie udało się zalogowac");
+                    Device.clear();
                 }
             }
 
@@ -72,7 +74,7 @@ public class ControllerHttpGateway {
 
     public void pair(String token) {
 
-        SocketClient socketClient = new SocketClient();
+        PingServer.resetNotLoggedCount();
 
         socketClient.previousStop();
 
@@ -164,7 +166,7 @@ public class ControllerHttpGateway {
                     JSONObject obj = new JSONObject(responseBody);
 
                     PingServer.deviceId = obj.getString("deviceId");
-                    PingServer.isLoggedIn = obj.getBoolean("isLoggedIn");
+                    PingServer.receiveLoginStatus(obj.getBoolean("isLoggedIn"));
 
                 } catch (JSONException ignored) {
                     Log.d(TAG, "Nie udalo sie odczytac json z pingu");

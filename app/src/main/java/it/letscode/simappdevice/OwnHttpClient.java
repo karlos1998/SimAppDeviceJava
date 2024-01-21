@@ -37,6 +37,7 @@ public class OwnHttpClient {
 
 
     private void makeRequest(String method, String url, String json, HttpResponseCallback callback) {
+        Log.d(TAG, "Request URK: " + url);
         Log.d(TAG, "Request JSON: " + json);
         Log.d(TAG, "Request Bearer: " + Device.getAuthToken());
         Runnable task = () -> {
@@ -64,6 +65,7 @@ public class OwnHttpClient {
                 try (Response response = client.newCall(request).execute()) {
                     final String responseBody = response.body().string();
                     final int responseCode = response.code();
+                    Log.d(TAG, "Response: (" + url + ") [" + responseCode + "]: " + responseBody);
                     mainHandler.post(() -> callback.onResponse(responseBody, responseCode));
                     return;
                 } catch (IOException e) {

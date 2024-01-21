@@ -5,6 +5,8 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.Socket;
+
 public class Device {
     private static String deviceId;
 
@@ -13,6 +15,11 @@ public class Device {
     private static String loginToken;
 
     private static String authToken;
+
+    private static final MyPreferences myPreferences = new MyPreferences();
+    private static final SocketClient socketClient = new SocketClient();
+
+    private static final ControllerHttpGateway controllerHttpGateway = new ControllerHttpGateway();
 
     public static void setFromLoginResponse(JSONObject obj) {
         try {
@@ -29,10 +36,16 @@ public class Device {
     }
 
     public static void clear () {
+
+        myPreferences.forgetLoginToken();
+        socketClient.previousStop();
+
         deviceId = null;
         deviceName = null;
         loginToken = null;
         authToken = null;
+
+        Log.d("Device", "Logout - device data cleared.");
     }
 
     public static String getDeviceId() {
@@ -45,5 +58,9 @@ public class Device {
 
     public static String getAuthToken () {
         return authToken;
+    }
+
+    public static void login() {
+        controllerHttpGateway.login(myPreferences.getLoginToken());
     }
 }
