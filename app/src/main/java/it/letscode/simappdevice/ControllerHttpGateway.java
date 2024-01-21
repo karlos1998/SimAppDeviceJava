@@ -16,6 +16,8 @@ public class ControllerHttpGateway {
     private final SystemInfo systemInfo = new SystemInfo();
 
     private final BatteryInfo batteryInfo = new BatteryInfo();
+
+
     MyPreferences myPreferences;
     public ControllerHttpGateway() {
         httpClient = new OwnHttpClient();
@@ -156,6 +158,8 @@ public class ControllerHttpGateway {
             json.put("batteryInfo", batteryInfo.getBatteryJsonData());
 
             json.put("deviceUuid", myPreferences.getDeviceUuid());
+
+            json.put("gsmSignalStrength", NetworkSignalStrengthChecker.getSignalStrength());
         } catch (JSONException ignored) {
 
         }
