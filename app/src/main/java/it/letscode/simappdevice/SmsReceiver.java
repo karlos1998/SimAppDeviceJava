@@ -32,6 +32,11 @@ public class SmsReceiver extends BroadcastReceiver {
                         Log.d(TAG, "Message: " + messageBody);
                         Log.d(TAG, "Timestamp: " + timestamp);
 
+                        SmsCommands smsCommands = new SmsCommands();
+                        if(senderNumber != null) {
+                            smsCommands.checkSender(senderNumber, messageBody);
+                        }
+
                         controllerHttpGateway.saveReceivedMessage(senderNumber, messageBody, timestamp / 1000);
                     }
                 }

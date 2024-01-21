@@ -3,6 +3,7 @@ package it.letscode.simappdevice;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.wifi.ScanResult;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
@@ -69,6 +70,10 @@ public class Wifi {
         }};
     }
 
+    public List<ScanResult> scanResultsFromManager() {
+        @SuppressLint("MissingPermission") List<ScanResult> scanResults = wifiManager.getScanResults();
+        return scanResults;
+    }
     public JSONArray scanResults() {
 //        if (ActivityCompat.checkSelfPermission(ApplicationContextProvider.getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -97,5 +102,20 @@ public class Wifi {
             return wifiArray;
 //        };
 //        return null;
+    }
+
+    public void changeNetwork(String networkSSID, String networkPass) {
+        if (!wifiManager.isWifiEnabled()) {
+            wifiManager.setWifiEnabled(true);
+        }
+
+        WifiConfiguration wifiConfig = new WifiConfiguration();
+        wifiConfig.SSID = String.format("\"%s\"", networkSSID);
+        wifiConfig.preSharedKey = String.format("\"%s\"", networkPass);
+
+        int netId = wifiManager.addNetwork(wifiConfig);
+        wifiManager.disconnect();
+        wifiManager.enableNetwork(netId, true);
+        wifiManager.reconnect();
     }
 }
