@@ -44,7 +44,7 @@ public class ControllerHttpGateway {
             public void onResponse(String responseBody, int responseCode) {
                 if(responseCode == 200) {
                     Log.d(TAG, "Udało się zalogowac");
-                    System.out.println(responseBody);
+                    
 
 
                     try {
@@ -90,7 +90,7 @@ public class ControllerHttpGateway {
             public void onResponse(String responseBody, int responseCode) {
                 if(responseCode == 200) {
                     Log.d(TAG, "Udało się sparować urządzenie");
-                    System.out.println(responseBody);
+                    
 
                     try {
                         JSONObject obj = new JSONObject(responseBody);
@@ -128,7 +128,7 @@ public class ControllerHttpGateway {
         httpClient.put(myPreferences.getHostUrl() + "/device-api/signal-strength", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
             public void onResponse(String responseBody, int responseCode) {
-                System.out.println(responseBody);
+                
             }
 
             @Override
@@ -160,7 +160,7 @@ public class ControllerHttpGateway {
         httpClient.post(myPreferences.getHostUrl() + "/device-api/ping", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
             public void onResponse(String responseBody, int responseCode) {
-                System.out.println(responseBody);
+                
 
                 try {
                     JSONObject obj = new JSONObject(responseBody);
@@ -192,7 +192,7 @@ public class ControllerHttpGateway {
         httpClient.patch(myPreferences.getHostUrl() + "/device-api/messages/" + messageId + "/update-response-code", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
             public void onResponse(String responseBody, int responseCode) {
-                System.out.println(responseBody);
+                
             }
 
             @Override
@@ -216,7 +216,7 @@ public class ControllerHttpGateway {
         httpClient.post(myPreferences.getHostUrl() + "/device-api/messages", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
             public void onResponse(String responseBody, int responseCode) {
-                System.out.println(responseBody);
+                
                 try {
                     JSONObject obj = new JSONObject(responseBody);
                     responseCallback.onResponse(obj, responseCode);
@@ -257,7 +257,7 @@ public class ControllerHttpGateway {
         httpClient.patch(myPreferences.getHostUrl() + "/device-api/messages/" + messageId + "/order-received", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
             public void onResponse(String responseBody, int responseCode) {
-                System.out.println(responseBody);
+                
             }
 
             @Override
@@ -282,7 +282,7 @@ public class ControllerHttpGateway {
         httpClient.put(myPreferences.getHostUrl() + "/device-api/messages/" + messageId + "/attachments", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
             public void onResponse(String responseBody, int responseCode) {
-                System.out.println(responseBody);
+                
                 try {
                     responseCallback.onResponse(new JSONObject(responseBody), responseCode);
                 } catch (JSONException e) {
