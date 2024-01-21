@@ -253,6 +253,8 @@ public class MyHTTPServer  extends NanoHTTPD {
                     put("deviceId", PingServer.deviceId);
                     put("isLoggedIn", PingServer.isLoggedIn);
                 }});
+
+                put("deviceUuid", myPreferences.getDeviceUuid() );
             } catch (JSONException ignore) {
             }
         }}.toString();

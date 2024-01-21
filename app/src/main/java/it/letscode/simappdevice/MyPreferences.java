@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.Map;
+import java.util.UUID;
 
 public class MyPreferences {
     private static final String PREFS_NAME = "MyPrefsFile";
@@ -84,5 +85,18 @@ public class MyPreferences {
     }
     public String getLastMmsAttachment() {
         return prefs.getString("LastMmsAttachment", "");
+    }
+    ////////
+
+
+    public String getDeviceUuid() {
+        return prefs.getString("DeviceUniqueUuid", null);
+    }
+    public void generateDeviceUuidIfNotExist() {
+        if(getDeviceUuid() == null || getDeviceUuid().isEmpty()) {
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("DeviceUniqueUuid", UUID.randomUUID().toString());
+            editor.apply();
+        }
     }
 }

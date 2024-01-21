@@ -61,7 +61,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         MyPreferences myPreferences = new MyPreferences();
+
         myPreferences.setContext(getApplicationContext());
+
+        myPreferences.generateDeviceUuidIfNotExist();
+
         String prefsContent = myPreferences.getAllPreferences();
         Log.d("SharedPreferences", "Zawartość: " + prefsContent);
 

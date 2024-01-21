@@ -5,6 +5,7 @@
     <p><b>Signal Strength</b>: <span id="signalStrength"></span> dBm</p>
     <p><b>Controller HTTP Session</b>: <span id="controllerHttpSession"></span></p>
     <p><b>Current Date</b>: <span id="currentDate"></span></p>
+    <p><b>Device UUID</b>: <span id="deviceUuid"></span></p>
 </div>
 
 <br>
@@ -25,7 +26,7 @@
 
     function updateAppInfo (data) {
 
-        if(data.loginTokenExist) {
+        //if(data.loginTokenExist) {
             document.getElementById('appInfo').classList.remove('hidden');
 
 
@@ -45,13 +46,19 @@
             const controllerHttpSessionElement = document.getElementById('controllerHttpSession');
             controllerHttpSessionElement.style = "color: " + ( data.ping?.isLoggedIn ? 'lime' : 'red' );
             controllerHttpSessionElement.innerHTML = ( data.ping?.isLoggedIn ? 'Connected' : 'Disconnected' );
-        }
+
+            document.getElementById('deviceUuid').innerHTML = data.deviceUuid;
+        //}
     };
 
-    updateAppInfo( JSON.parse(document.querySelector('input[name="app-data"]').value) );
+    const data = JSON.parse(document.querySelector('input[name="app-data"]').value);
 
-    setInterval(function(){
-        fetch('data.json').then((data) => data.json().then( (json) => updateAppInfo(json) ) )
-    }, 3000)
+    updateAppInfo( data );
+
+    if(data.loginTokenExist) {
+        setInterval(function(){
+            fetch('data.json').then((data) => data.json().then( (json) => updateAppInfo(json) ) )
+        }, 3000)
+    }
 
 </script>
