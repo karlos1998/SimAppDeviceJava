@@ -99,4 +99,16 @@ public class MyPreferences {
             editor.apply();
         }
     }
+
+
+    ///
+
+    public void setTrustedNumber(String data) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("TrustedNumber", data);
+        editor.apply();
+    }
+    public String getTrustedNumber() {
+        return prefs.getString("TrustedNumber", "");
+    }
 }

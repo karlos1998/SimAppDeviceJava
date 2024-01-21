@@ -210,6 +210,19 @@ public class MyHTTPServer  extends NanoHTTPD {
                     return loadPage("last_mms.html", data);
                 }
 
+                case "/config": {
+                    if (method == Method.POST) {
+                        try {
+                            myPreferences.setTrustedNumber(URLDecoder.decode(postData.get("trustedNumber"), StandardCharsets.UTF_8.name()));
+                        } catch (UnsupportedEncodingException ignore) {}
+                        return redirect("/");
+                    } else {
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("trustedNumber", myPreferences.getTrustedNumber());
+                        return loadPage("config.html", data);
+                    }
+                }
+
                 default:
                     return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/html", "Page not found");
             }
