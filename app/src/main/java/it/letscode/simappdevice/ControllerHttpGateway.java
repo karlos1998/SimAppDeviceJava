@@ -54,6 +54,7 @@ public class ControllerHttpGateway {
 
                         Device.setFromLoginResponse(obj);
 
+                        socketClient.setConfig(obj.getJSONObject("socketConfig"));
                         socketClient.connectToPusher();
                     } catch (JSONException ignored) {
                         Log.d(TAG, "Nie udało się zalogowac (1)");
@@ -100,6 +101,7 @@ public class ControllerHttpGateway {
 
                         myPreferences.setLoginToken(obj.getString("loginToken"));
 
+                        socketClient.setConfig(obj.getJSONObject("socketConfig"));
                         socketClient.connectToPusher();
                     } catch (JSONException ignored) {
                         Log.d(TAG, "Nie udało się sparować urządzenia (1)");

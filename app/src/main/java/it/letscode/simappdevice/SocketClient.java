@@ -3,26 +3,21 @@ package it.letscode.simappdevice;
 import android.util.Log;
 
 import com.pusher.client.AuthorizationFailureException;
-import com.pusher.client.Authorizer;
-import com.pusher.client.ChannelAuthorizer;
 import com.pusher.client.Pusher;
 import com.pusher.client.PusherOptions;
 import com.pusher.client.channel.Channel;
 import com.pusher.client.channel.PresenceChannelEventListener;
 import com.pusher.client.channel.PrivateChannelEventListener;
 import com.pusher.client.channel.PusherEvent;
-import com.pusher.client.channel.SubscriptionEventListener;
 import com.pusher.client.channel.User;
 import com.pusher.client.connection.ConnectionEventListener;
 import com.pusher.client.connection.ConnectionState;
 import com.pusher.client.connection.ConnectionStateChange;
-import com.pusher.client.util.HttpAuthorizer;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Set;
 
 import okhttp3.MediaType;
@@ -37,8 +32,28 @@ public class SocketClient {
 
     private MyPreferences myPreferences;
 
+    private static String appKey;
+    private static String host;
+    private static int port;
+    private static String scheme;
+    private static String cluster;
+
+
     public SocketClient() {
         this.myPreferences = new MyPreferences();
+    }
+
+    public void setConfig(JSONObject socketConfig) {
+        Log.d("Socket Client", socketConfig.toString());
+        try {
+            appKey = socketConfig.getString("appKey");
+            host = socketConfig.getString("host");
+            port = socketConfig.getInt("port");
+            scheme = socketConfig.getString("scheme");
+            cluster = socketConfig.getString("cluster");
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void previousStop() {
@@ -57,10 +72,11 @@ public class SocketClient {
     public void connectToPusher() {
 
         PusherOptions options = new PusherOptions();
-        options.setCluster("mt1");
-        options.setHost("srv01.letscode.it");
-        options.setWsPort(6001);
-        options.setUseTLS(false);
+        options.setCluster(cluster);
+        options.setHost(host);
+        options.setWsPort(port);
+
+        options.setUseTLS(false); //todo - scheme... :)
 
         options.setActivityTimeout(10000); //timeout
         options.setPongTimeout(30000);
