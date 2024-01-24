@@ -1,5 +1,7 @@
 plugins {
     id("com.android.application")
+
+    id("io.sentry.android.gradle") version "4.2.0"
 }
 
 android {
@@ -45,4 +47,13 @@ dependencies {
     implementation("com.pusher:pusher-java-client:2.4.4")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3") //need to pusher for android 5 / 6
     implementation("com.squareup.okhttp3:okhttp:4.9.0");
+}
+
+sentry {
+    org.set("lets-code-it-y3")
+    projectName.set("sim-app-device")
+
+    // this will upload your source code to Sentry to show it as part of the stack traces
+    // disable if you don't want to expose your sources
+    includeSourceContext.set(true)
 }
