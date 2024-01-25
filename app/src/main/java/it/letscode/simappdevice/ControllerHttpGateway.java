@@ -162,9 +162,12 @@ public class ControllerHttpGateway {
             json.put("deviceUuid", myPreferences.getDeviceUuid());
 
             json.put("gsmSignalStrength", NetworkSignalStrengthChecker.getSignalStrength());
+
+            json.put("isScreenOn", DeviceScreenStatus.isScreenOn());
         } catch (JSONException ignored) {
 
         }
+
         httpClient.post(myPreferences.getHostUrl() + "/device-api/ping", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
             public void onResponse(String responseBody, int responseCode) {

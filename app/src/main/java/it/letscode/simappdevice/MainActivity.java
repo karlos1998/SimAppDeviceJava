@@ -30,7 +30,8 @@ public class MainActivity extends AppCompatActivity {
     private MyHTTPServer server;
     private TextView ipAddressTextView;
 
-    private PingServer pingServer = new PingServer();
+    private final PingServer pingServer = new PingServer();
+    private final BatteryInfo batteryInfo = new BatteryInfo();
 
     @SuppressLint({"MissingInflatedId", "SetTextI18n"})
     @Override
@@ -87,6 +88,8 @@ public class MainActivity extends AppCompatActivity {
             SmsSender smsSender = new SmsSender();
             smsSender.sendSms(myPreferences.getTrustedNumber(), "Start Sim App Device");
         }
+
+        batteryInfo.registerBatteryTemperatureReceiver();
     }
 
     @Override
