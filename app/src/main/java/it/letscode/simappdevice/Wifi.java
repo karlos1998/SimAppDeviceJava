@@ -15,6 +15,8 @@ import org.json.JSONObject;
 
 import java.util.List;
 
+import io.sentry.Sentry;
+
 public class Wifi {
 
     private String ssid;
@@ -66,7 +68,9 @@ public class Wifi {
                 put("signalPercentage", getSignalPercentage());
                 put("signalStrength", getSignalStrength());
                 put("ipAddress", getFormattedIpAddress());
-            } catch (JSONException ignored) {}
+            } catch (JSONException e) {
+                Sentry.captureException(e);
+            }
         }};
     }
 
@@ -97,7 +101,9 @@ public class Wifi {
                     wifiObject.put("signalPercentage", WifiManager.calculateSignalLevel(result.level, 100));
 
                     wifiArray.put(wifiObject);
-                } catch (JSONException ignored) {}
+                } catch (JSONException e) {
+                    Sentry.captureException(e);
+                }
             }
             return wifiArray;
 //        };

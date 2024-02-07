@@ -6,6 +6,8 @@ import android.content.pm.PackageManager;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.sentry.Sentry;
+
 public class Permissions {
     public Map<String, Boolean> getAllPermissions(PackageManager packageManager) {
         Map<String, Boolean> permissionsMap = new HashMap<>();
@@ -18,6 +20,7 @@ public class Permissions {
                 }
             }
         } catch (PackageManager.NameNotFoundException e) {
+            Sentry.captureException(e);
             e.printStackTrace();
         }
         return permissionsMap;

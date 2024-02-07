@@ -37,9 +37,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        ApplicationContextProvider.initialize(getApplicationContext());
 
-        super.onCreate(savedInstanceState);
 //    // waiting for view to draw to better represent a captured error with a screenshot
 //    findViewById(android.R.id.content).getViewTreeObserver().addOnGlobalLayoutListener(() -> {
 //      try {
@@ -49,47 +47,57 @@ public class MainActivity extends AppCompatActivity {
 //      }
 //    });
 
-        setContentView(R.layout.activity_main);
-
-        ipAddressTextView = findViewById(R.id.ip_address_text_view);
-
-        String ipAddress = getDeviceIpAddress(this);
-        ipAddressTextView.setText("Adres IP: " + ipAddress);
-
         int port = 8888;
         try {
             server = new MyHTTPServer(this, port);
             server.start();
             System.out.println("Serwer działa na porcie: " + port);
+
+
+            ApplicationContextProvider.initialize(getApplicationContext());
+
+            super.onCreate(savedInstanceState);
+
+            setContentView(R.layout.activity_main);
+
+            ipAddressTextView = findViewById(R.id.ip_address_text_view);
+
+            String ipAddress = getDeviceIpAddress(this);
+            ipAddressTextView.setText("URI: http://" + ipAddress + ":" + port);
+
+
+            NetworkSignalStrengthChecker networkSignalStrengthChecker = new NetworkSignalStrengthChecker(this);
+            networkSignalStrengthChecker.startSignalStrengthCheck();
+
+
+            MyPreferences myPreferences = new MyPreferences();
+
+            myPreferences.setContext(getApplicationContext());
+
+            myPreferences.generateDeviceUuidIfNotExist();
+
+            String prefsContent = myPreferences.getAllPreferences();
+            Log.d("SharedPreferences", "Zawartość: " + prefsContent);
+
+            Device.login();
+
+            pingServer.start();
+
+            if(myPreferences.trustedNumberExist()) {
+                SmsSender smsSender = new SmsSender();
+                smsSender.sendSms(myPreferences.getTrustedNumber(), "Start Sim App Device");
+            }
+
+            batteryInfo.registerBatteryTemperatureReceiver();
+
         } catch (IOException e) {
             System.err.println("Błąd uruchamiania serwera: " + e.getMessage());
             Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show();
+            Sentry.captureException(e);
             finish();
         }
 
-        NetworkSignalStrengthChecker networkSignalStrengthChecker = new NetworkSignalStrengthChecker(this);
-        networkSignalStrengthChecker.startSignalStrengthCheck();
 
-
-        MyPreferences myPreferences = new MyPreferences();
-
-        myPreferences.setContext(getApplicationContext());
-
-        myPreferences.generateDeviceUuidIfNotExist();
-
-        String prefsContent = myPreferences.getAllPreferences();
-        Log.d("SharedPreferences", "Zawartość: " + prefsContent);
-
-        Device.login();
-
-        pingServer.start();
-
-        if(myPreferences.trustedNumberExist()) {
-            SmsSender smsSender = new SmsSender();
-            smsSender.sendSms(myPreferences.getTrustedNumber(), "Start Sim App Device");
-        }
-
-        batteryInfo.registerBatteryTemperatureReceiver();
     }
 
     @Override

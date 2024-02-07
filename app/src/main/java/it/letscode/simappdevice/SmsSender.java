@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 
+import io.sentry.Sentry;
+
 
 public class SmsSender {
 
@@ -45,6 +47,7 @@ public class SmsSender {
         } catch (Exception e) {
             controllerHttpGateway.markMessageAsOrderReceived(messageId, false, e.toString());
             System.out.println("Wysylanie wiadomosci nie powiodlo sie:");
+            Sentry.captureException(e);
             e.printStackTrace();
         }
     }

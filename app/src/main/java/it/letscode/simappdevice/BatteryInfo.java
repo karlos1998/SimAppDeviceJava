@@ -10,6 +10,8 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import io.sentry.Sentry;
+
 public class BatteryInfo {
 
     static double lastKnownTemperature;
@@ -31,7 +33,9 @@ public class BatteryInfo {
                 batteryInfo.put("percentage", batteryPct * 100);
                 batteryInfo.put("isCharging", isCharging);
                 batteryInfo.put("temperature", lastKnownTemperature);
-            } catch (JSONException ignored) {}
+            } catch (JSONException e) {
+                Sentry.captureException(e);
+            }
 
             return batteryInfo;
         }

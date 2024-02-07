@@ -20,6 +20,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.Set;
 
+import io.sentry.Sentry;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -52,7 +53,7 @@ public class SocketClient {
             scheme = socketConfig.getString("scheme");
             cluster = socketConfig.getString("cluster");
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            Sentry.captureException(e);
         }
     }
 
@@ -89,7 +90,7 @@ public class SocketClient {
                     put("socket_id", socketId);
                     put("channel_name", channelName);
                 } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                    Sentry.captureException(e);
                 }
             }};
 
@@ -114,6 +115,7 @@ public class SocketClient {
                 System.out.println("Otrzymany token logowania do kanalu '" + channelName + "': " + responseBody);
                 return responseBody;
             } catch (IOException e) {
+                Sentry.captureException(e);
                 throw new RuntimeException(e);
             }
         });

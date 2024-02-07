@@ -13,6 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import fi.iki.elonen.NanoHTTPD;
+import io.sentry.Sentry;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -94,6 +95,7 @@ public class MyHTTPServer  extends NanoHTTPD {
                     result.write(buffer, 0, length);
                 }
             } catch (IOException e) {
+                Sentry.captureException(e);
                 e.printStackTrace();
             }
 
@@ -117,6 +119,7 @@ public class MyHTTPServer  extends NanoHTTPD {
             session.parseBody(params);
             System.out.println("get query: " + session.getQueryParameterString());
         } catch (IOException | ResponseException e) {
+            Sentry.captureException(e);
             e.printStackTrace();
         }
 
@@ -133,6 +136,7 @@ public class MyHTTPServer  extends NanoHTTPD {
                         try {
                             text = URLDecoder.decode(text, StandardCharsets.UTF_8.name());
                         } catch (UnsupportedEncodingException e) {
+                            Sentry.captureException(e);
                             System.out.print("Nie udało się dekodować tekstu z formularza wysylania wiadommosci na Utf8 - wyslam tekst przed dekodowaniem.");
                         }
                         smsSender.sendSms(number, text);
@@ -170,8 +174,8 @@ public class MyHTTPServer  extends NanoHTTPD {
                         String url = postData.get("url");
                         try {
                             url = URLDecoder.decode(url, StandardCharsets.UTF_8.name());
-                        } catch (UnsupportedEncodingException ignored) {
-
+                        } catch (UnsupportedEncodingException e) {
+                            Sentry.captureException(e);
                         }
                         assert url != null;
                         myPreferences.setHostUrl(url.startsWith("http") ? url : ("http://" + url));
@@ -193,7 +197,8 @@ public class MyHTTPServer  extends NanoHTTPD {
                         JSONObject json = new JSONObject() {{
                             try {
                                 put("loginTokenExist", myPreferences.isLoginTokenExist());
-                            } catch (JSONException ignore) {
+                            } catch (JSONException e) {
+                                Sentry.captureException(e);
                             }
                         }};
                         data.put("data", json.toString());
@@ -214,7 +219,9 @@ public class MyHTTPServer  extends NanoHTTPD {
                     if (method == Method.POST) {
                         try {
                             myPreferences.setTrustedNumber(URLDecoder.decode(postData.get("trustedNumber"), StandardCharsets.UTF_8.name()));
-                        } catch (UnsupportedEncodingException ignore) {}
+                        } catch (UnsupportedEncodingException e) {
+                            Sentry.captureException(e);
+                        }
                         return redirect("/");
                     } else {
                         Map<String, Object> data = new HashMap<>();
@@ -268,7 +275,8 @@ public class MyHTTPServer  extends NanoHTTPD {
                 }});
 
                 put("deviceUuid", myPreferences.getDeviceUuid() );
-            } catch (JSONException ignore) {
+            } catch (JSONException e) {
+                Sentry.captureException(e);
             }
         }}.toString();
     }
@@ -298,6 +306,7 @@ public class MyHTTPServer  extends NanoHTTPD {
             response.addHeader("Author", "Let's Code It - www.letscode.it");
             return response;
         } catch (IOException e) {
+            Sentry.captureException(e);
             e.printStackTrace();
             return newFixedLengthResponse("Błąd wczytywania pliku: " + e.getMessage());
         }
@@ -328,6 +337,7 @@ public class MyHTTPServer  extends NanoHTTPD {
             InputStream fileStream = context.getAssets().open(filename);
             return newChunkedResponse(Response.Status.OK, mime, fileStream);
         } catch (IOException e) {
+            Sentry.captureException(e);
             e.printStackTrace();
             return newFixedLengthResponse("Error during load static file: " + e.getMessage());
         }

@@ -5,6 +5,8 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import io.sentry.Sentry;
+
 
 public class ControllerHttpGateway {
 //    final String hostUrl = "https://panel-dev.simply-connect.ovh";
@@ -39,7 +41,9 @@ public class ControllerHttpGateway {
         try {
             json.put("token", token);
             json.put("systemInfo", systemInfo.getJsonDetails());
-        } catch (JSONException ignored) {}
+        } catch (JSONException e) {
+            Sentry.captureException(e);
+        }
 
         httpClient.post(myPreferences.getHostUrl() + "/device-api/login", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
@@ -56,8 +60,9 @@ public class ControllerHttpGateway {
 
                         socketClient.setConfig(obj.getJSONObject("socketConfig"));
                         socketClient.connectToPusher();
-                    } catch (JSONException ignored) {
+                    } catch (JSONException e) {
                         Log.d(TAG, "Nie udało się zalogowac (1)");
+                        Sentry.captureException(e);
                     }
 
                 } else {
@@ -85,8 +90,8 @@ public class ControllerHttpGateway {
         try {
             json.put("token", token);
             json.put("systemInfo", systemInfo.getJsonDetails());
-        } catch (JSONException ignored) {
-
+        } catch (JSONException e) {
+            Sentry.captureException(e);
         }
         httpClient.post(myPreferences.getHostUrl() + "/device-api/pair", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
@@ -103,8 +108,9 @@ public class ControllerHttpGateway {
 
                         socketClient.setConfig(obj.getJSONObject("socketConfig"));
                         socketClient.connectToPusher();
-                    } catch (JSONException ignored) {
+                    } catch (JSONException e) {
                         Log.d(TAG, "Nie udało się sparować urządzenia (1)");
+                        Sentry.captureException(e);
                     }
 
                 } else {
@@ -164,8 +170,8 @@ public class ControllerHttpGateway {
             json.put("gsmSignalStrength", NetworkSignalStrengthChecker.getSignalStrength());
 
             json.put("isScreenOn", DeviceScreenStatus.isScreenOn());
-        } catch (JSONException ignored) {
-
+        } catch (JSONException e) {
+            Sentry.captureException(e);
         }
 
         httpClient.post(myPreferences.getHostUrl() + "/device-api/ping", json.toString(), new OwnHttpClient.HttpResponseCallback() {
@@ -179,8 +185,9 @@ public class ControllerHttpGateway {
                     PingServer.deviceId = obj.getString("deviceId");
                     PingServer.receiveLoginStatus(obj.getBoolean("isLoggedIn"));
 
-                } catch (JSONException ignored) {
+                } catch (JSONException e) {
                     Log.d(TAG, "Nie udalo sie odczytac json z pingu");
+                    Sentry.captureException(e);
                 }
             }
 
@@ -197,8 +204,8 @@ public class ControllerHttpGateway {
         JSONObject json = new JSONObject();
         try {
             json.put("responseCode", responseCode);
-        } catch (JSONException ignored) {
-
+        } catch (JSONException e) {
+            Sentry.captureException(e);
         }
         httpClient.patch(myPreferences.getHostUrl() + "/device-api/messages/" + messageId + "/update-response-code", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
@@ -221,8 +228,8 @@ public class ControllerHttpGateway {
             json.put("phoneNumber", phoneNumber);
             json.put("text", text);
             json.put("timestamp", timestamp);
-        } catch (JSONException ignored) {
-
+        } catch (JSONException e) {
+            Sentry.captureException(e);
         }
         httpClient.post(myPreferences.getHostUrl() + "/device-api/messages", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
@@ -231,8 +238,9 @@ public class ControllerHttpGateway {
                 try {
                     JSONObject obj = new JSONObject(responseBody);
                     responseCallback.onResponse(obj, responseCode);
-                } catch (JSONException ignored) {
+                } catch (JSONException e) {
                     Log.d(TAG, "Nie udalo sie odczytac json z pingu");
+                    Sentry.captureException(e);
                 }
             }
 
@@ -262,8 +270,8 @@ public class ControllerHttpGateway {
         try {
             json.put("isAccepted", isAccepted);
             json.put("errorMessage", errorMessage);
-        } catch (JSONException ignored) {
-
+        } catch (JSONException e) {
+            Sentry.captureException(e);
         }
         httpClient.patch(myPreferences.getHostUrl() + "/device-api/messages/" + messageId + "/order-received", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
@@ -287,8 +295,8 @@ public class ControllerHttpGateway {
             json.put("value", value);
             json.put("uuid", messageAttachmentUuid);
             json.put("ready", lastPart);
-        } catch (JSONException ignored) {
-
+        } catch (JSONException e) {
+            Sentry.captureException(e);
         }
         httpClient.put(myPreferences.getHostUrl() + "/device-api/messages/" + messageId + "/attachments", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
@@ -297,7 +305,7 @@ public class ControllerHttpGateway {
                 try {
                     responseCallback.onResponse(new JSONObject(responseBody), responseCode);
                 } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                    Sentry.captureException(e);
                 }
             }
 

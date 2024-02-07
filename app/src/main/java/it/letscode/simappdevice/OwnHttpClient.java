@@ -76,6 +76,7 @@ public class OwnHttpClient {
                     }
                     return;
                 } catch (IOException e) {
+                    Sentry.captureException(e);
                     attempts++;
                     if (attempts >= 3) {
                         mainHandler.post(() -> callback.onFailure(e));

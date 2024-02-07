@@ -20,6 +20,8 @@ import org.json.JSONObject;
 
 import java.util.List;
 
+import io.sentry.Sentry;
+
 public class SystemInfo {
 
 
@@ -50,7 +52,9 @@ public class SystemInfo {
                     try {
                         put("lac", lac);
                         put("cid", cid);
-                    } catch (JSONException ignore) {}
+                    } catch (JSONException e) {
+                        Sentry.captureException(e);
+                    }
                 }});
             }
         }
@@ -74,8 +78,9 @@ public class SystemInfo {
             deviceInfo.put("bts", getBtsJsonData());
 
             Log.d("DeviceInfo", deviceInfo.toString(4));
-        } catch (JSONException ignore) {
+        } catch (JSONException e) {
             Log.d("DeviceInfo", "Json Error!");
+            Sentry.captureException(e);
         }
 
         return deviceInfo;

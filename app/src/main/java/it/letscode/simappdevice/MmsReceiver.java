@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import io.sentry.Sentry;
+
 public class MmsReceiver extends BroadcastReceiver {
 
     /**
@@ -111,8 +113,8 @@ public class MmsReceiver extends BroadcastReceiver {
 
                    MmsReceiver mmsReceiver = new MmsReceiver();
                    mmsReceiver.sendAttachments(messageId, attachmentDetailsList);
-                } catch (JSONException ignored) {
-
+                } catch (JSONException e) {
+                    Sentry.captureException(e);
                 }
             }
 
@@ -267,11 +269,13 @@ public class MmsReceiver extends BroadcastReceiver {
 
             return Base64.encodeToString(outputStream.toByteArray(), Base64.NO_WRAP);
         } catch (IOException e) {
+            Sentry.captureException(e);
             e.printStackTrace();
         } finally {
             try {
                 outputStream.close();
             } catch (IOException e) {
+                Sentry.captureException(e);
                 e.printStackTrace();
             }
         }
@@ -292,6 +296,7 @@ public class MmsReceiver extends BroadcastReceiver {
             }
         } catch (IOException e) {
             Log.e(TAG, "Błąd odczytu tekstu załącznika MMS", e);
+            Sentry.captureException(e);
         }
         return stringBuilder.toString();
     }
@@ -303,12 +308,16 @@ public class MmsReceiver extends BroadcastReceiver {
         try {
             is = ApplicationContextProvider.getApplicationContext().getContentResolver().openInputStream(partURI);
             bitmap = BitmapFactory.decodeStream(is);
-        } catch (IOException e) {}
+        } catch (IOException e) {
+            Sentry.captureException(e);
+        }
         finally {
             if (is != null) {
                 try {
                     is.close();
-                } catch (IOException e) {}
+                } catch (IOException e) {
+                    Sentry.captureException(e);
+                }
             }
         }
         return bitmap;

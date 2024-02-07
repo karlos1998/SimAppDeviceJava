@@ -7,6 +7,8 @@ import org.json.JSONObject;
 
 import java.net.Socket;
 
+import io.sentry.Sentry;
+
 public class Device {
     private static String deviceId;
 
@@ -31,7 +33,7 @@ public class Device {
             Log.d("Device", "setAuthToken: " + authToken);
 
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            Sentry.captureException(e);
         }
     }
 
