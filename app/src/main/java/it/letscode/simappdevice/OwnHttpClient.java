@@ -85,6 +85,7 @@ public class OwnHttpClient {
                             System.out.println("HTTP Request try again: " + url);
                         } catch (InterruptedException ex) {
                             Sentry.captureException(ex);
+                            return;
 //                            throw new RuntimeException(ex);
                         }
                     }
