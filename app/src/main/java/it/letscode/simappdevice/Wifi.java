@@ -124,4 +124,10 @@ public class Wifi {
         wifiManager.enableNetwork(netId, true);
         wifiManager.reconnect();
     }
+
+    public String getOnlyIpString() {
+        WifiInfo info = wifiManager.getConnectionInfo();
+        ipAddress = info.getIpAddress();
+        return getFormattedIpAddress();
+    }
 }

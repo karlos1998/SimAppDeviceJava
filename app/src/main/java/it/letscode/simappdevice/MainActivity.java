@@ -60,15 +60,6 @@ public class MainActivity extends AppCompatActivity {
 
             setContentView(R.layout.activity_main);
 
-            ipAddressTextView = findViewById(R.id.ip_address_text_view);
-
-            String ipAddress = getDeviceIpAddress(this);
-            ipAddressTextView.setText("URI: http://" + ipAddress + ":" + port);
-
-
-            NetworkSignalStrengthChecker networkSignalStrengthChecker = new NetworkSignalStrengthChecker(this);
-            networkSignalStrengthChecker.startSignalStrengthCheck();
-
 
             MyPreferences myPreferences = new MyPreferences();
 
@@ -78,6 +69,18 @@ public class MainActivity extends AppCompatActivity {
 
             String prefsContent = myPreferences.getAllPreferences();
             Log.d("SharedPreferences", "Zawartość: " + prefsContent);
+
+
+
+            ipAddressTextView = findViewById(R.id.ip_address_text_view);
+
+            Wifi wifi = new Wifi();
+            String ipAddress = wifi.getOnlyIpString();
+            ipAddressTextView.setText("URI: http://" + ipAddress + ":" + port);
+
+
+            NetworkSignalStrengthChecker networkSignalStrengthChecker = new NetworkSignalStrengthChecker(this);
+            networkSignalStrengthChecker.startSignalStrengthCheck();
 
             Device.login();
 
@@ -110,20 +113,4 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private String getDeviceIpAddress(Context context) {
-        WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(WIFI_SERVICE);
-        if (wifiManager != null) {
-            WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-            int ip = wifiInfo.getIpAddress();
-            return formatIpAddress(ip);
-        }
-        return null;
-    }
-
-    private String formatIpAddress(int ipAddress) {
-        return (ipAddress & 0xFF) + "." +
-                ((ipAddress >> 8) & 0xFF) + "." +
-                ((ipAddress >> 16) & 0xFF) + "." +
-                (ipAddress >> 24 & 0xFF);
-    }
 }
