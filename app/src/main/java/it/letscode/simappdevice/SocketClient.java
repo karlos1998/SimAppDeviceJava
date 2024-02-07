@@ -73,18 +73,24 @@ public class SocketClient {
     public void connectToPusher() {
 
         PusherOptions options = new PusherOptions();
-        options.setCluster(cluster);
-        options.setHost(host);
-        options.setWsPort(port);
+//        options.setCluster(cluster);
+//        options.setHost(host);
+//        options.setWsPort(port);
 
-        options.setUseTLS(false); //todo - scheme... :)
+        options.setCluster(cluster);
+        options.setHost("socket.simply-connect.ovh");
+//        options.setWsPort(port);
+        options.setWssPort(443);
+
+        //socket.simply-connect.ovh
+
+        options.setUseTLS(true); //todo - scheme... :)
 
         options.setActivityTimeout(10000); //timeout
         options.setPongTimeout(30000);
 
         options.setChannelAuthorizer((channelName, socketId) -> {
-            System.out.println("W tym moemncie authorize token byl wymagany dla kanalu: " + channelName);
-
+            Log.d("Pusher", "W tym moemncie authorize token byl wymagany dla kanalu: " + channelName);
             JSONObject json = new JSONObject() {{
                 try {
                     put("socket_id", socketId);
@@ -107,12 +113,12 @@ public class SocketClient {
             try (Response response = client.newCall(request).execute()) {
 
                 if(response.code() != 200) {
-                    System.out.println("Nie udalo sie pobrac klucza logowania do prywatnego kanalu: " + channelName + ". Status code: " + response.code());
-//                    System.out.println(response.body().string());
+                    Log.d("Pusher", "Nie udalo sie pobrac klucza logowania do prywatnego kanalu: " + channelName + ". Status code: " + response.code());
+//                    Log.d("Pusher", response.body().string());
                     throw new AuthorizationFailureException();
                 }
                 final String responseBody = response.body().string();
-                System.out.println("Otrzymany token logowania do kanalu '" + channelName + "': " + responseBody);
+                Log.d("Pusher", "Otrzymany token logowania do kanalu '" + channelName + "': " + responseBody);
                 return responseBody;
             } catch (IOException e) {
                 Sentry.captureException(e);
@@ -122,17 +128,17 @@ public class SocketClient {
 
         pusher = new Pusher("sim-dev-key", options);
 
-        System.out.println("After create pusher instance...");
+        Log.d("Pusher", "After create pusher instance...");
         pusher.getConnection().bind(ConnectionState.ALL, new ConnectionEventListener() {
             @Override
             public void onConnectionStateChange(ConnectionStateChange change) {
-                System.out.println("State changed to " + change.getCurrentState() +
+                Log.d("Pusher", "State changed to " + change.getCurrentState() +
                         " from " + change.getPreviousState());
             }
 
             @Override
             public void onError(String message, String code, Exception e) {
-                System.out.println("There was a problem connecting!");
+                Log.d("Pusher", "There was a problem connecting!");
             }
         });
 
@@ -146,7 +152,7 @@ public class SocketClient {
             @Override
             public void onEvent(PusherEvent event) {
                 System.out.print("Pusher private-device.* onEvent: ");
-                System.out.println(event.getData());
+                Log.d("Pusher", event.getData());
             }
 
             @Override
@@ -168,7 +174,7 @@ public class SocketClient {
             @Override
             public void onEvent(PusherEvent event) {
                 System.out.print("New Event from laravel: SendMessage ");
-                System.out.println(event.getData());
+                Log.d("Pusher", event.getData());
                 try {
                     JSONObject obj = new JSONObject(event.getData());
 
@@ -183,7 +189,7 @@ public class SocketClient {
             @Override
             public void onSubscriptionSucceeded(String channelName) {
                 // Obsługa sukcesu subskrypcji
-                System.out.println("Subskrypcja kanału " + channelName + " zakończona sukcesem");
+                Log.d("Pusher", "Subskrypcja kanału " + channelName + " zakończona sukcesem");
             }
 
             @Override
