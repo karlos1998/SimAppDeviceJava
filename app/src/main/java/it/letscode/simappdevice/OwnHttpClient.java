@@ -16,6 +16,7 @@ import java.util.concurrent.Future;
 
 import javax.security.auth.callback.Callback;
 
+import io.sentry.Sentry;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -67,6 +68,12 @@ public class OwnHttpClient {
                     final int responseCode = response.code();
                     Log.d(TAG, "Response: (" + url + ") [" + responseCode + "]: " + responseBody);
                     mainHandler.post(() -> callback.onResponse(responseBody, responseCode));
+                    if (responseCode < 200 || responseCode > 299) {
+                        HttpException httpException = new HttpException(responseCode, responseBody);
+                        Sentry.captureException(httpException);
+                        mainHandler.post(() -> callback.onFailure(httpException));
+                        return;
+                    }
                     return;
                 } catch (IOException e) {
                     attempts++;
@@ -77,7 +84,8 @@ public class OwnHttpClient {
                             Thread.sleep(10 * 1000);
                             System.out.println("HTTP Request try again: " + url);
                         } catch (InterruptedException ex) {
-                            throw new RuntimeException(ex);
+                            Sentry.captureException(ex);
+//                            throw new RuntimeException(ex);
                         }
                     }
                 }
