@@ -3,11 +3,14 @@ package it.letscode.simappdevice;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import io.sentry.Sentry;
-
+import android.Manifest;
 public class Permissions {
     public Map<String, Boolean> getAllPermissions(PackageManager packageManager) {
         Map<String, Boolean> permissionsMap = new HashMap<>();
@@ -25,4 +28,36 @@ public class Permissions {
         }
         return permissionsMap;
     }
+
+
+    public void requestPermissions() {
+
+    }
+
+
+    public boolean hasAllPermissionsGranted() {
+        for (String permission : getRequiredPermissions()) {
+            if (ContextCompat.checkSelfPermission(ApplicationContextProvider.getApplicationContext(), permission) != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    private String[] getRequiredPermissions() {
+        try {
+            String[] permissions = ApplicationContextProvider.getApplicationContext().getPackageManager()
+                    .getPackageInfo(ApplicationContextProvider.getApplicationContext().getPackageName(), PackageManager.GET_PERMISSIONS)
+                    .requestedPermissions;
+            if (permissions != null) {
+                return permissions;
+            } else {
+                return new String[0];
+            }
+        } catch (Exception e) {
+            return new String[0];
+        }
+    }
+
 }

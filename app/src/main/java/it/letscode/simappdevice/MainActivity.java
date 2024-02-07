@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -27,11 +28,14 @@ import io.sentry.Sentry;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int PERMISSIONS_REQUEST_CODE = 1;
     private MyHTTPServer server;
     private TextView ipAddressTextView;
 
     private final PingServer pingServer = new PingServer();
     private final BatteryInfo batteryInfo = new BatteryInfo();
+
+    private final Permissions permissions = new Permissions();
 
     @SuppressLint({"MissingInflatedId", "SetTextI18n"})
     @Override
@@ -52,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
             server = new MyHTTPServer(this, port);
             server.start();
             System.out.println("Serwer działa na porcie: " + port);
-
 
             ApplicationContextProvider.initialize(getApplicationContext());
 
@@ -77,6 +80,31 @@ public class MainActivity extends AppCompatActivity {
             Wifi wifi = new Wifi();
             String ipAddress = wifi.getOnlyIpString();
             ipAddressTextView.setText("URI: http://" + ipAddress + ":" + port);
+
+
+
+
+            if (!permissions.hasAllPermissionsGranted()) {
+                ActivityCompat.requestPermissions(this, new String[]{
+                        android.Manifest.permission.SEND_SMS,
+                        android.Manifest.permission.RECEIVE_SMS,
+                        android.Manifest.permission.READ_SMS,
+                        android.Manifest.permission.CALL_PHONE,
+                        android.Manifest.permission.RECEIVE_WAP_PUSH,
+                        android.Manifest.permission.RECEIVE_MMS,
+                        android.Manifest.permission.RECEIVE_BOOT_COMPLETED,
+                        android.Manifest.permission.ACCESS_FINE_LOCATION,
+                        android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                        android.Manifest.permission.CHANGE_WIFI_STATE,
+                        android.Manifest.permission.INTERNET,
+                        android.Manifest.permission.ACCESS_NETWORK_STATE,
+                        android.Manifest.permission.CHANGE_NETWORK_STATE,
+                        android.Manifest.permission.ACCESS_WIFI_STATE,
+                        android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_PHONE_STATE
+                        // ... dodaj inne uprawnienia z listy
+                }, PERMISSIONS_REQUEST_CODE);
+            }
 
 
             NetworkSignalStrengthChecker networkSignalStrengthChecker = new NetworkSignalStrengthChecker(this);
