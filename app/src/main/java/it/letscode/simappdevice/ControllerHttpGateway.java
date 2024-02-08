@@ -19,6 +19,7 @@ public class ControllerHttpGateway {
 
     private final BatteryInfo batteryInfo = new BatteryInfo();
 
+    private boolean waitingToPingResponse = false;
 
     MyPreferences myPreferences;
     public ControllerHttpGateway() {
@@ -146,6 +147,10 @@ public class ControllerHttpGateway {
 
     public void ping() {
 
+        if(waitingToPingResponse) return;
+
+        waitingToPingResponse = true;
+
         Wifi wifi = new Wifi();
         wifi.getCurrentNetwork();
 
@@ -172,7 +177,7 @@ public class ControllerHttpGateway {
         httpClient.post(myPreferences.getHostUrl() + "/device-api/ping", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
             public void onResponse(JSONObject data, int responseCode) {
-
+                waitingToPingResponse = false;
                 try {
                     PingServer.deviceId = data.getString("deviceId");
                     PingServer.receiveLoginStatus(data.getBoolean("isLoggedIn"));
@@ -184,13 +189,14 @@ public class ControllerHttpGateway {
 
             @Override
             public void onFailure(Throwable throwable) {
+                waitingToPingResponse = false;
                 Log.d(TAG, "Ping send error: ");
                 System.out.println(throwable.getMessage());
             }
 
             @Override
             public void onError(JSONObject data, int responseCode) {
-
+                waitingToPingResponse = false;
             }
         });
     }
