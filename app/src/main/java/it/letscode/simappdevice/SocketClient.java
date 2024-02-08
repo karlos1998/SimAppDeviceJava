@@ -35,23 +35,29 @@ public class SocketClient {
 
     private static String appKey;
     private static String host;
-    private static int port;
+    private static int wsPort;
+    private static int wssPort;
     private static String scheme;
     private static String cluster;
+    private static Boolean useTLS;
 
 
     public SocketClient() {
         this.myPreferences = new MyPreferences();
     }
 
+    private final SystemInfo systemInfo = new SystemInfo();
+
     public void setConfig(JSONObject socketConfig) {
         Log.d("Socket Client", socketConfig.toString());
         try {
             appKey = socketConfig.getString("appKey");
             host = socketConfig.getString("host");
-            port = socketConfig.getInt("port");
+            wsPort = socketConfig.getInt("wsPort");
+            wssPort = socketConfig.getInt("wssPort");
             scheme = socketConfig.getString("scheme");
             cluster = socketConfig.getString("cluster");
+            useTLS = socketConfig.getBoolean("useTLS");
         } catch (JSONException e) {
             Sentry.captureException(e);
         }
@@ -73,20 +79,18 @@ public class SocketClient {
     public void connectToPusher() {
 
         PusherOptions options = new PusherOptions();
-//        options.setCluster(cluster);
-//        options.setHost(host);
-//        options.setWsPort(port);
 
         options.setCluster(cluster);
-        options.setHost("socket.simply-connect.ovh");
-//        options.setWsPort(port);
-        options.setWssPort(443);
+        options.setHost(host);
+        options.setWsPort(wsPort);
+        options.setWssPort(wssPort);
 
-        //socket.simply-connect.ovh
+        if(systemInfo.getSdkVersion() <= 23) { //coś nie chce działać socket po HTTP, ale tylko android 6
+            useTLS = false;
+        }
+        options.setUseTLS(useTLS);
 
-        options.setUseTLS(true); //todo - scheme... :)
-
-        options.setActivityTimeout(10000); //timeout
+        options.setActivityTimeout(10000);
         options.setPongTimeout(30000);
 
         options.setChannelAuthorizer((channelName, socketId) -> {

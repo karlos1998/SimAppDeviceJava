@@ -115,7 +115,7 @@ public class SystemInfo {
         return Build.ID;
     }
 
-    private int getSdkVersion() {
+    public int getSdkVersion() {
         return Build.VERSION.SDK_INT;
     }
 
