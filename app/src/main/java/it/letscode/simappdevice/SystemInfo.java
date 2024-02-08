@@ -27,6 +27,8 @@ public class SystemInfo {
 
     public JSONArray getBtsJsonData() {
 
+        JSONArray data = new JSONArray();
+
         if (ActivityCompat.checkSelfPermission(ApplicationContextProvider.getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -35,12 +37,11 @@ public class SystemInfo {
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
-            return null;
+            return data;
         }
 
         TelephonyManager telephonyManager = (TelephonyManager) ApplicationContextProvider.getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
         List<CellInfo> cellInfoList = telephonyManager.getAllCellInfo();
-        JSONArray data = new JSONArray();
 
         for (CellInfo cellInfo : cellInfoList) {
             if (cellInfo instanceof CellInfoGsm) {
