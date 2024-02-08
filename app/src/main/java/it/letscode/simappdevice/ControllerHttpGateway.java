@@ -43,6 +43,7 @@ public class ControllerHttpGateway {
             json.put("systemInfo", systemInfo.getJsonDetails());
         } catch (JSONException e) {
             Sentry.captureException(e);
+            return;
         }
 
         httpClient.post(myPreferences.getHostUrl() + "/device-api/login", json.toString(), new OwnHttpClient.HttpResponseCallback() {
