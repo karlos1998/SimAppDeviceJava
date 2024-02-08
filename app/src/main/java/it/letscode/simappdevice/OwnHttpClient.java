@@ -7,6 +7,7 @@ import android.telecom.Call;
 import android.util.Log;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -32,8 +33,9 @@ public class OwnHttpClient {
     private static final String TAG = "Own Http Client";
 
     public interface HttpResponseCallback {
-        void onResponse(String responseBody, int responseCode);
+        void onResponse(JSONObject data, int responseCode);
         void onFailure(Throwable throwable);
+        void onError(JSONObject data, int responseCode);
     }
 
 
@@ -67,12 +69,23 @@ public class OwnHttpClient {
                     final String responseBody = response.body().string();
                     final int responseCode = response.code();
                     Log.d(TAG, "Response: (" + url + ") [" + responseCode + "]: " + responseBody);
-                    mainHandler.post(() -> callback.onResponse(responseBody, responseCode));
-                    if (responseCode < 200 || responseCode > 299) {
-                        HttpException httpException = new HttpException(responseCode, responseBody);
-                        Sentry.captureException(httpException);
-                        mainHandler.post(() -> callback.onFailure(httpException));
-                        return;
+
+                    JSONObject obj = null;
+                    try {
+                        obj = new JSONObject(responseBody);
+                    } catch (JSONException e) {
+                        Log.d(TAG, "Nie udalo sie odczytac json z response");
+                        Sentry.captureException(e);
+                    }
+                    if(obj != null) {
+                        JSONObject finalObj = obj;
+                        if (responseCode < 200 || responseCode > 299) {
+                            HttpException httpException = new HttpException(responseCode, responseBody);
+                            Sentry.captureException(httpException);
+                            mainHandler.post(() -> callback.onError(finalObj, responseCode));
+                        } else {
+                            mainHandler.post(() -> callback.onResponse(finalObj, responseCode));
+                        }
                     }
                     return;
                 } catch (IOException e) {

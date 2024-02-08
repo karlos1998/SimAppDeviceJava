@@ -48,27 +48,18 @@ public class ControllerHttpGateway {
 
         httpClient.post(myPreferences.getHostUrl() + "/device-api/login", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
-            public void onResponse(String responseBody, int responseCode) {
-                if(responseCode == 200) {
-                    Log.d(TAG, "Udało się zalogowac");
-                    
+            public void onResponse(JSONObject data, int responseCode) {
+                Log.d(TAG, "Udało się zalogowac");
 
+                try {
 
-                    try {
-                        JSONObject obj = new JSONObject(responseBody);
+                    Device.setFromLoginResponse(data);
 
-                        Device.setFromLoginResponse(obj);
-
-                        socketClient.setConfig(obj.getJSONObject("socketConfig"));
-                        socketClient.connectToPusher();
-                    } catch (JSONException e) {
-                        Log.d(TAG, "Nie udało się zalogowac (1)");
-                        Sentry.captureException(e);
-                    }
-
-                } else {
-                    Log.d(TAG, "Nie udało się zalogowac");
-                    Device.clear();
+                    socketClient.setConfig(data.getJSONObject("socketConfig"));
+                    socketClient.connectToPusher();
+                } catch (JSONException e) {
+                    Log.d(TAG, "Nie udało się zalogowac (1)");
+                    Sentry.captureException(e);
                 }
             }
 
@@ -76,6 +67,11 @@ public class ControllerHttpGateway {
             public void onFailure(Throwable throwable) {
                 Log.d(TAG, "Nie udało się zalogowac - HTTP FAIL");
                 System.out.println(throwable.getMessage());
+            }
+
+            @Override
+            public void onError(JSONObject data, int responseCode) {
+                Device.clear();
             }
         });
     }
@@ -96,26 +92,19 @@ public class ControllerHttpGateway {
         }
         httpClient.post(myPreferences.getHostUrl() + "/device-api/pair", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
-            public void onResponse(String responseBody, int responseCode) {
-                if(responseCode == 200) {
-                    Log.d(TAG, "Udało się sparować urządzenie");
-                    
+            public void onResponse(JSONObject data, int responseCode) {
+                Log.d(TAG, "Udało się sparować urządzenie");
 
-                    try {
-                        JSONObject obj = new JSONObject(responseBody);
-                        Device.setFromLoginResponse(obj);
+                try {
+                    Device.setFromLoginResponse(data);
 
-                        myPreferences.setLoginToken(obj.getString("loginToken"));
+                    myPreferences.setLoginToken(data.getString("loginToken"));
 
-                        socketClient.setConfig(obj.getJSONObject("socketConfig"));
-                        socketClient.connectToPusher();
-                    } catch (JSONException e) {
-                        Log.d(TAG, "Nie udało się sparować urządzenia (1)");
-                        Sentry.captureException(e);
-                    }
-
-                } else {
-                    Log.d(TAG, "Nie udało się sparować urządzenia");
+                    socketClient.setConfig(data.getJSONObject("socketConfig"));
+                    socketClient.connectToPusher();
+                } catch (JSONException e) {
+                    Log.d(TAG, "Nie udało się sparować urządzenia (1)");
+                    Sentry.captureException(e);
                 }
             }
 
@@ -123,6 +112,11 @@ public class ControllerHttpGateway {
             public void onFailure(Throwable throwable) {
                 Log.d(TAG, "Nie udało się zalogowac - HTTP FAIL");
                 System.out.println(throwable.getMessage());
+            }
+
+            @Override
+            public void onError(JSONObject data, int responseCode) {
+
             }
         });
     }
@@ -177,15 +171,11 @@ public class ControllerHttpGateway {
 
         httpClient.post(myPreferences.getHostUrl() + "/device-api/ping", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
-            public void onResponse(String responseBody, int responseCode) {
-                
+            public void onResponse(JSONObject data, int responseCode) {
 
                 try {
-                    JSONObject obj = new JSONObject(responseBody);
-
-                    PingServer.deviceId = obj.getString("deviceId");
-                    PingServer.receiveLoginStatus(obj.getBoolean("isLoggedIn"));
-
+                    PingServer.deviceId = data.getString("deviceId");
+                    PingServer.receiveLoginStatus(data.getBoolean("isLoggedIn"));
                 } catch (JSONException e) {
                     Log.d(TAG, "Nie udalo sie odczytac json z pingu");
                     Sentry.captureException(e);
@@ -196,6 +186,11 @@ public class ControllerHttpGateway {
             public void onFailure(Throwable throwable) {
                 Log.d(TAG, "Ping send error: ");
                 System.out.println(throwable.getMessage());
+            }
+
+            @Override
+            public void onError(JSONObject data, int responseCode) {
+
             }
         });
     }
@@ -210,7 +205,7 @@ public class ControllerHttpGateway {
         }
         httpClient.patch(myPreferences.getHostUrl() + "/device-api/messages/" + messageId + "/update-response-code", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
-            public void onResponse(String responseBody, int responseCode) {
+            public void onResponse(JSONObject data, int responseCode) {
                 
             }
 
@@ -218,6 +213,11 @@ public class ControllerHttpGateway {
             public void onFailure(Throwable throwable) {
                 Log.d(TAG, "Send Message Callback send error: ");
                 System.out.println(throwable.getMessage());
+            }
+
+            @Override
+            public void onError(JSONObject data, int responseCode) {
+
             }
         });
     }
@@ -234,15 +234,8 @@ public class ControllerHttpGateway {
         }
         httpClient.post(myPreferences.getHostUrl() + "/device-api/messages", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
-            public void onResponse(String responseBody, int responseCode) {
-                
-                try {
-                    JSONObject obj = new JSONObject(responseBody);
-                    responseCallback.onResponse(obj, responseCode);
-                } catch (JSONException e) {
-                    Log.d(TAG, "Nie udalo sie odczytac json z pingu");
-                    Sentry.captureException(e);
-                }
+            public void onResponse(JSONObject data, int responseCode) {
+                responseCallback.onResponse(data, responseCode);
             }
 
             @Override
@@ -250,6 +243,11 @@ public class ControllerHttpGateway {
                 Log.d(TAG, "Save Received Message Callback send error: ");
                 System.out.println(throwable.getMessage());
                 responseCallback.onFailure(throwable);
+            }
+
+            @Override
+            public void onError(JSONObject data, int responseCode) {
+
             }
         });
     }
@@ -276,7 +274,7 @@ public class ControllerHttpGateway {
         }
         httpClient.patch(myPreferences.getHostUrl() + "/device-api/messages/" + messageId + "/order-received", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
-            public void onResponse(String responseBody, int responseCode) {
+            public void onResponse(JSONObject data, int responseCode) {
                 
             }
 
@@ -284,6 +282,11 @@ public class ControllerHttpGateway {
             public void onFailure(Throwable throwable) {
                 Log.d(TAG, "Save Received Message Callback send error: ");
                 System.out.println(throwable.getMessage());
+            }
+
+            @Override
+            public void onError(JSONObject data, int responseCode) {
+
             }
         });
     }
@@ -301,19 +304,20 @@ public class ControllerHttpGateway {
         }
         httpClient.put(myPreferences.getHostUrl() + "/device-api/messages/" + messageId + "/attachments", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
-            public void onResponse(String responseBody, int responseCode) {
-                
-                try {
-                    responseCallback.onResponse(new JSONObject(responseBody), responseCode);
-                } catch (JSONException e) {
-                    Sentry.captureException(e);
-                }
+            public void onResponse(JSONObject data, int responseCode) {
+
+                responseCallback.onResponse(data, responseCode);
             }
 
             @Override
             public void onFailure(Throwable throwable) {
                 Log.d(TAG, "Save Received Message Callback send error: ");
                 System.out.println(throwable.getMessage());
+            }
+
+            @Override
+            public void onError(JSONObject data, int responseCode) {
+
             }
         });
     }
