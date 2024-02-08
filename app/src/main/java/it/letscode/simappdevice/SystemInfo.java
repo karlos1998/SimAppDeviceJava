@@ -78,7 +78,7 @@ public class SystemInfo {
             deviceInfo.put("bts", getBtsJsonData());
 
             Log.d("DeviceInfo", deviceInfo.toString(4));
-        } catch (JSONException e) {
+        } catch (JSONException|NullPointerException e) {
             Log.d("DeviceInfo", "Json Error!");
             Sentry.captureException(e);
         }
