@@ -29,6 +29,7 @@ public class OwnHttpClient {
     private final OkHttpClient client = new OkHttpClient();
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private final MyPreferences myPreferences = new MyPreferences();
 
     private static final String TAG = "Own Http Client";
 
@@ -48,6 +49,7 @@ public class OwnHttpClient {
             Request.Builder builder = new Request.Builder()
                     .url(url)
                     .addHeader("Accept", "application/json")
+                    .addHeader("SIM-Device-UUID", myPreferences.getDeviceUuid())
                     .addHeader("Authorization", "Bearer " + Device.getAuthToken());
 
             switch (method) {
