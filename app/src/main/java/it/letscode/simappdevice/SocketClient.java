@@ -205,6 +205,40 @@ public class SocketClient {
         /* ************************************************* */
 
 
+        /* *
+         * Online device status for user
+         */
+        pusher.subscribePresence("presence-device." + Device.getDeviceId(), new PresenceChannelEventListener() {
+            @Override
+            public void onUsersInformationReceived(String channelName, Set<User> users) {
+
+            }
+
+            @Override
+            public void userSubscribed(String channelName, User user) {
+
+            }
+
+            @Override
+            public void userUnsubscribed(String channelName, User user) {
+
+            }
+
+            @Override
+            public void onAuthenticationFailure(String message, Exception e) {
+
+            }
+
+            @Override
+            public void onSubscriptionSucceeded(String channelName) {
+
+            }
+
+            @Override
+            public void onEvent(PusherEvent event) {
+
+            }
+        });
 
 
         /* *
