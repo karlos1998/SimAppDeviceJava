@@ -130,7 +130,7 @@ public class SocketClient {
             }
         });
 
-        pusher = new Pusher("sim-dev-key", options);
+        pusher = new Pusher(appKey, options);
 
         Log.d("Pusher", "After create pusher instance...");
         pusher.getConnection().bind(ConnectionState.ALL, new ConnectionEventListener() {
