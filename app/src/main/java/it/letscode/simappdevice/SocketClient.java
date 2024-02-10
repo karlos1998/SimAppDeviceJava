@@ -208,7 +208,7 @@ public class SocketClient {
         /* *
          * Online device status for user
          */
-        pusher.subscribePresence("presence-device." + Device.getDeviceId(), new PresenceChannelEventListener() {
+        pusher.subscribePresence("presence-device-status." + Device.getDeviceId(), new PresenceChannelEventListener() {
             @Override
             public void onUsersInformationReceived(String channelName, Set<User> users) {
 
