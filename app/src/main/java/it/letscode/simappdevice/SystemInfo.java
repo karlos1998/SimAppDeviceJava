@@ -2,6 +2,7 @@ package it.letscode.simappdevice;
 
 import static androidx.core.content.ContextCompat.getSystemService;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -9,6 +10,8 @@ import android.os.Build;
 import android.telephony.CellIdentityGsm;
 import android.telephony.CellInfo;
 import android.telephony.CellInfoGsm;
+import android.telephony.SubscriptionInfo;
+import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -18,6 +21,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.sentry.Sentry;
@@ -126,18 +130,20 @@ public class SystemInfo {
 
     @SuppressLint("HardwareIds")
     private String getPhoneNumber() {
-        if (ActivityCompat.checkSelfPermission(ApplicationContextProvider.getApplicationContext(), android.Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(ApplicationContextProvider.getApplicationContext(), android.Manifest.permission.READ_PHONE_NUMBERS) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(ApplicationContextProvider.getApplicationContext(), android.Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return "NO_PERMISSION";
+        List<String> numbers = new ArrayList<>();
+
+        SubscriptionManager subscriptionManager = (SubscriptionManager) ApplicationContextProvider.getApplicationContext().getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(ApplicationContextProvider.getApplicationContext(), Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+            List<SubscriptionInfo> subscriptionInfos = subscriptionManager.getActiveSubscriptionInfoList();
+            for (SubscriptionInfo subscriptionInfo : subscriptionInfos) {
+//                numbers.add(subscriptionInfo.getNumber());
+                int subscriptionId = subscriptionInfo.getSubscriptionId();
+                TelephonyManager specificTelephonyManager = (TelephonyManager) ApplicationContextProvider.getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+                numbers.add(specificTelephonyManager.getLine1Number());
+
+            }
         }
-        TelephonyManager telephonyManager = (TelephonyManager) ApplicationContextProvider.getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
-        return telephonyManager.getLine1Number();
+        return String.join(", ", numbers);
     }
 
 }

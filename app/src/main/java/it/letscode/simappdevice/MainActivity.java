@@ -1,5 +1,6 @@
 package it.letscode.simappdevice;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -12,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.util.Log;
@@ -113,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
                         android.Manifest.permission.READ_EXTERNAL_STORAGE,
                         Manifest.permission.READ_PHONE_STATE,
                         Manifest.permission.WAKE_LOCK,
+                        Manifest.permission.READ_PHONE_NUMBERS,
                         // ... dodaj inne uprawnienia z listy
                 }, PERMISSIONS_REQUEST_CODE);
             }
