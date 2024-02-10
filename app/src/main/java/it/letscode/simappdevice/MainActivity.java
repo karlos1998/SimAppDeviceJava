@@ -13,7 +13,9 @@ import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -56,6 +58,14 @@ public class MainActivity extends AppCompatActivity {
             server = new MyHTTPServer(this, port);
             server.start();
             System.out.println("Serwer działa na porcie: " + port);
+
+            PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+            PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                    "MyApp::MyWakeLockTag");
+
+            // Aby zapobiec usypianiu
+            wakeLock.acquire();
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
             ApplicationContextProvider.initialize(getApplicationContext());
 
@@ -101,7 +111,8 @@ public class MainActivity extends AppCompatActivity {
                         android.Manifest.permission.CHANGE_NETWORK_STATE,
                         android.Manifest.permission.ACCESS_WIFI_STATE,
                         android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.READ_PHONE_STATE
+                        Manifest.permission.READ_PHONE_STATE,
+                        Manifest.permission.WAKE_LOCK,
                         // ... dodaj inne uprawnienia z listy
                 }, PERMISSIONS_REQUEST_CODE);
             }
