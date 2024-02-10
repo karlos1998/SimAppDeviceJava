@@ -30,8 +30,8 @@ public class PingServer {
     public void start() {
         final Runnable task = () -> controllerHttpGateway.ping();
 
-        // Uruchomienie zadania co 15 sekund
-        scheduler.scheduleAtFixedRate(task, 0, 15, TimeUnit.SECONDS);
+        // Uruchomienie zadania co 10 sekund
+        scheduler.scheduleAtFixedRate(task, 0, 10, TimeUnit.SECONDS);
     }
 
     public void stop() {
