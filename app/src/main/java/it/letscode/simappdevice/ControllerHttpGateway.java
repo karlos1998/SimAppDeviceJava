@@ -147,7 +147,10 @@ public class ControllerHttpGateway {
 
     public void ping() {
 
-        if(waitingToPingResponse) return;
+        if(waitingToPingResponse) {
+            Log.d("Ping", "Nie wyslano pingu - inny jest juz w kolejce");
+            return;
+        }
 
         waitingToPingResponse = true;
 
