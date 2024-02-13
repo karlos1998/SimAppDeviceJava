@@ -56,7 +56,7 @@ public class SmsSentReceiver extends BroadcastReceiver {
             Log.d(TAG, "Recipient: " + phoneNumber);
 
             if(messageId > 0) {
-                controllerHttpGateway.sendMessageCallback(messageId, resultCode);
+                controllerHttpGateway.sendMessageCallback(messageId, resultCode, getResultCode() == Activity.RESULT_OK);
             }
         }
     }

@@ -204,11 +204,12 @@ public class ControllerHttpGateway {
         });
     }
 
-    public void sendMessageCallback(int messageId, String responseCode) {
+    public void sendMessageCallback(int messageId, String responseCode, boolean sentSuccess) {
 
         JSONObject json = new JSONObject();
         try {
             json.put("responseCode", responseCode);
+            json.put("sentSuccess", sentSuccess);
         } catch (JSONException e) {
             Sentry.captureException(e);
         }
