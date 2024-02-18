@@ -77,6 +77,7 @@ public class OwnHttpClient {
                         obj = new JSONObject(responseBody);
                     } catch (JSONException e) {
                         Log.d(TAG, "Nie udalo sie odczytac json z response");
+                        mainHandler.post(() -> callback.onFailure(e));
                         Sentry.captureException(e);
                     }
                     if(obj != null) {
