@@ -9,20 +9,30 @@ public class PingServer {
     ControllerHttpGateway controllerHttpGateway = new ControllerHttpGateway();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static final MyPreferences myPreferences = new MyPreferences();
+    private static final SocketClient socketClient = new SocketClient();
     static public boolean isLoggedIn;
     static public String deviceId;
 
     private static int notLoggedCount = 0;
+    private static int socketNotLoggedCount = 0;
 
     public static void resetNotLoggedCount() {
         notLoggedCount = 0;
+        socketNotLoggedCount = 0;
     }
     public static void receiveLoginStatus(boolean isLoggedIn) {
         PingServer.isLoggedIn = isLoggedIn;
-        if(!isLoggedIn && myPreferences.isLoginTokenExist()) {
-            if(++notLoggedCount > 8) { // 4 per minute == 2 minutes
-                resetNotLoggedCount();
-                Device.login();
+        if(myPreferences.isLoginTokenExist()) {
+            if(!isLoggedIn) {
+                if(++notLoggedCount > 8) {
+                    resetNotLoggedCount();
+                    Device.login();
+                }
+            } else if(!socketClient.isConnected()) {
+                if(++socketNotLoggedCount > 8) {
+                    resetNotLoggedCount();
+                    Device.login();
+                }
             }
         }
     }
