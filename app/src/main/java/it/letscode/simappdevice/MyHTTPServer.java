@@ -208,7 +208,7 @@ public class MyHTTPServer  extends NanoHTTPD {
                     }
                 case "/data.json":
 
-                    return newFixedLengthResponse(Response.Status.OK, "application/json", this.jsonData());
+                    return newFixedLengthResponse(Response.Status.OK, "application/json", this.jsonData(4));
 
                 case "/last_mms": {
                     Map<String, Object> data = new HashMap<>();
@@ -258,7 +258,11 @@ public class MyHTTPServer  extends NanoHTTPD {
     }
 
     private String jsonData() {
-        return new JSONObject() {{
+        return jsonData(0);
+    }
+    private String jsonData(int indentSpaces) {
+
+        JSONObject jsonObject = new JSONObject() {{
             try {
                 put("socketIsConnected", socketClient.isConnected());
                 put("socketPrivateChannelIsSubscribed", socketClient.privateChannelIsSubscribed());
@@ -287,7 +291,16 @@ public class MyHTTPServer  extends NanoHTTPD {
             } catch (JSONException e) {
                 Sentry.captureException(e);
             }
-        }}.toString();
+        }};
+
+        if(indentSpaces > 0) {
+            try {
+                return jsonObject.toString(indentSpaces);
+            } catch (JSONException ignored) {
+            }
+        }
+
+        return jsonObject.toString();
     }
 
     private Response loadPage(String filename) {
