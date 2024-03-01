@@ -76,6 +76,10 @@ public class SocketClient {
         return pusher != null && pusher.getConnection().getState() == ConnectionState.CONNECTED;
     }
 
+    public boolean privateChannelIsSubscribed() {
+        return pusher.getChannel("test").isSubscribed();
+    }
+
     public void connectToPusher() {
 
         PusherOptions options = new PusherOptions();
@@ -147,7 +151,6 @@ public class SocketClient {
         });
 
         pusher.connect();
-
 
         /**
          * Prywatny kanal nasluchiwania dla danego device

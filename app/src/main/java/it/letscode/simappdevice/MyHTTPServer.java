@@ -260,6 +260,7 @@ public class MyHTTPServer  extends NanoHTTPD {
         return new JSONObject() {{
             try {
                 put("socketIsConnected", socketClient.isConnected());
+                put("socketPrivateChannelIsSubscribed", socketClient.privateChannelIsSubscribed());
                 put("deviceName", Device.getDeviceName());
                 put("deviceId", Device.getDeviceId());
                 put("loginTokenExist", myPreferences.isLoginTokenExist());
