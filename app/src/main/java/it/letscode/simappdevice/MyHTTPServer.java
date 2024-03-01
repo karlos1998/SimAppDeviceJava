@@ -266,6 +266,9 @@ public class MyHTTPServer  extends NanoHTTPD {
                 put("loginTokenExist", myPreferences.isLoginTokenExist());
                 put("signalStrength", NetworkSignalStrengthChecker.getSignalStrength());
 
+                put("versionName", ApplicationContextProvider.getPackageInfo().versionName);
+                put("versionCode", ApplicationContextProvider.getPackageInfo().versionCode);
+
                 Calendar calendar = Calendar.getInstance();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
                 put("currentDate", sdf.format(calendar.getTime()) );

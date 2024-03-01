@@ -9,6 +9,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.net.wifi.WifiInfo;
@@ -46,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
 
+        PackageManager packageManager = getPackageManager();
+
+
 //    // waiting for view to draw to better represent a captured error with a screenshot
 //    findViewById(android.R.id.content).getViewTreeObserver().addOnGlobalLayoutListener(() -> {
 //      try {
@@ -70,6 +74,10 @@ public class MainActivity extends AppCompatActivity {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
             ApplicationContextProvider.initialize(getApplicationContext());
+
+            PackageInfo packageInfo = packageManager.getPackageInfo(getPackageName(), 0);
+
+            ApplicationContextProvider.setPackageInfo(packageInfo);
 
             super.onCreate(savedInstanceState);
 
@@ -135,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
 
             batteryInfo.registerBatteryTemperatureReceiver();
 
-        } catch (IOException e) {
+        } catch (IOException | PackageManager.NameNotFoundException e) {
             System.err.println("Błąd uruchamiania serwera: " + e.getMessage());
             Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show();
             Sentry.captureException(e);
