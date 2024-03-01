@@ -46,6 +46,7 @@ public class MyHTTPServer  extends NanoHTTPD {
 
     SocketClient socketClient;
 
+    private final SystemInfo systemInfo = new SystemInfo();
     public MyHTTPServer(Context context, int port) {
         super(port);
         this.context = context;
@@ -270,6 +271,8 @@ public class MyHTTPServer  extends NanoHTTPD {
                 put("versionCode", ApplicationContextProvider.getPackageInfo().versionCode);
 
                 put("controllerUrl", myPreferences.getHostUrl());
+
+                put("systemInfo", systemInfo.getJsonDetails());
 
                 Calendar calendar = Calendar.getInstance();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
