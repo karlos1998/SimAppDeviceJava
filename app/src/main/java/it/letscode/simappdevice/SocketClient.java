@@ -77,7 +77,7 @@ public class SocketClient {
     }
 
     public boolean privateChannelIsSubscribed() {
-        return pusher.getChannel("test").isSubscribed();
+        return isConnected() && pusher.getChannel("private-device." + Device.getDeviceId()).isSubscribed();
     }
 
     public void connectToPusher() {
