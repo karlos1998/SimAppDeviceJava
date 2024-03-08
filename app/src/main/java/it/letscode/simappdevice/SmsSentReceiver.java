@@ -46,7 +46,7 @@ public class SmsSentReceiver extends BroadcastReceiver {
                     break;
                 default:
                     message = "Nieznany błąd wysyłania";
-                    resultCode = "UNKNOWN";
+                    resultCode = "UNKNOWN:" + getResultCode();
                     break;
             }
 
@@ -57,6 +57,7 @@ public class SmsSentReceiver extends BroadcastReceiver {
 
             if(messageId > 0) {
                 controllerHttpGateway.sendMessageCallback(messageId, resultCode, getResultCode() == Activity.RESULT_OK);
+                MessagesQueue.messageActionDone(messageId);
             }
         }
     }

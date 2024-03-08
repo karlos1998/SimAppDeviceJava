@@ -5,6 +5,8 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.function.Function;
+
 import io.sentry.Sentry;
 
 
@@ -58,6 +60,8 @@ public class ControllerHttpGateway {
 
                     socketClient.setConfig(data.getJSONObject("socketConfig"));
                     socketClient.connectToPusher();
+
+                    MessagesQueue.check();
                 } catch (JSONException e) {
                     Log.d(TAG, "Nie udało się zalogowac (1)");
                     Sentry.captureException(e);
@@ -213,7 +217,7 @@ public class ControllerHttpGateway {
         } catch (JSONException e) {
             Sentry.captureException(e);
         }
-        httpClient.patch(myPreferences.getHostUrl() + "/device-api/messages/" + messageId + "/update-response-code", json.toString(), new OwnHttpClient.HttpResponseCallback() {
+        httpClient.patch(myPreferences.getHostUrl() + "/device-api/single-messages/" + messageId + "/update-response-code", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
             public void onResponse(JSONObject data, int responseCode) {
                 
@@ -282,7 +286,7 @@ public class ControllerHttpGateway {
         } catch (JSONException e) {
             Sentry.captureException(e);
         }
-        httpClient.patch(myPreferences.getHostUrl() + "/device-api/messages/" + messageId + "/order-received", json.toString(), new OwnHttpClient.HttpResponseCallback() {
+        httpClient.patch(myPreferences.getHostUrl() + "/device-api/single-messages/" + messageId + "/order-received", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
             public void onResponse(JSONObject data, int responseCode) {
                 
@@ -322,6 +326,34 @@ public class ControllerHttpGateway {
             @Override
             public void onFailure(Throwable throwable) {
                 Log.d(TAG, "Save Received Message Callback send error: ");
+                System.out.println(throwable.getMessage());
+            }
+
+            @Override
+            public void onError(JSONObject data, int responseCode) {
+
+            }
+        });
+    }
+
+    public void getSingleMessages() {
+
+        httpClient.get(myPreferences.getHostUrl() + "/device-api/single-messages", new OwnHttpClient.HttpResponseCallback() {
+            @Override
+            public void onResponse(JSONObject data, int responseCode) {
+                Log.d(TAG, "Pobrano liste wiadmoosci oczekujacych na nadanie");
+                try {
+                    MessagesQueue.addMessagesToQueue(data.getJSONArray("data"), data.getJSONObject("meta"));
+                } catch (JSONException e) {
+                    Log.d(TAG, "Nie udało się pobrac wiadomosci oczekujacych na nadanie - exception");
+                    System.out.println(e);
+                    Sentry.captureException(e);
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                Log.d(TAG, "Nie udało się pobrac wiadomosci oczekujacych na nadanie");
                 System.out.println(throwable.getMessage());
             }
 

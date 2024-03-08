@@ -182,15 +182,17 @@ public class SocketClient {
             public void onEvent(PusherEvent event) {
                 System.out.print("New Event from laravel: SendMessage ");
                 Log.d("Pusher", event.getData());
-                try {
-                    JSONObject obj = new JSONObject(event.getData());
 
-                    SmsSender smsSender = new SmsSender();
-                    smsSender.sendSms(obj.getString("phoneNumber"), obj.getString("text"), obj.getInt("messageId"));
-
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
+                MessagesQueue.check();
+//                try {
+//                    JSONObject obj = new JSONObject(event.getData());
+//
+//                    SmsSender smsSender = new SmsSender();
+//                    smsSender.sendSms(obj.getString("phoneNumber"), obj.getString("text"), obj.getInt("messageId"));
+//
+//                } catch (JSONException e) {
+//                    throw new RuntimeException(e);
+//                }
             }
 
             @Override

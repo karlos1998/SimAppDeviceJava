@@ -20,6 +20,10 @@ public class SmsSender {
 
     }
 
+    public void sendSms(MessageInQueue messageInQueue) {
+        sendSms(messageInQueue.getPhoneNumber(), messageInQueue.getText(), messageInQueue.getId());
+    }
+
     public void sendSms(String phoneNumber, String message) {
         int randomId = (int)(Math.random() * 50 + 1);
         sendSms(phoneNumber, message, -randomId);
