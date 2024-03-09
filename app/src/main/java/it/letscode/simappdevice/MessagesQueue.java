@@ -13,6 +13,8 @@ import java.util.concurrent.TimeUnit;
 public class MessagesQueue {
 
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private static volatile boolean isTaskScheduled = false;
+
     private static final SmsSender smsSender = new SmsSender();
     private static final ControllerHttpGateway controllerHttpGateway = new ControllerHttpGateway();
 
@@ -86,13 +88,26 @@ public class MessagesQueue {
 
     public static void checkMessagesQueueCrontabStart() {
 
+        final Runnable task = MessagesQueue::check;
+
         checkMessagesQueueCrontabStop();
 
-        final Runnable task = MessagesQueue::check;
-        scheduler.scheduleAtFixedRate(task, 0, 10, TimeUnit.MINUTES);
+        scheduler.scheduleAtFixedRate(task, 0, 15, TimeUnit.MINUTES);
+        isTaskScheduled = true;
     }
 
+
     public static void checkMessagesQueueCrontabStop() {
-        scheduler.shutdown();
+        if (isTaskScheduled) {
+            scheduler.shutdown();
+            try {
+                if (!scheduler.awaitTermination(2, TimeUnit.SECONDS)) {
+                    scheduler.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                scheduler.shutdownNow();
+            }
+            isTaskScheduled = false;
+        }
     }
 }
