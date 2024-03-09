@@ -11,7 +11,7 @@ public class MyPreferences {
 
 
     private static final String HOST_URL_KEY = "hostUrl";
-    private static final String DEFAULT_HOST_URL = "https://panel-dev.simply-connect.ovh";
+    private static final String DEFAULT_HOST_URL = "https://panel.simply-connect.ovh";
 
 
     private static final String TOKEN_KEY = "token";
