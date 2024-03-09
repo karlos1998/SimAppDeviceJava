@@ -274,6 +274,30 @@ public class ControllerHttpGateway {
         });
     }
 
+    /**
+     * Android >= 10 problem ;x
+     */
+    public void markMessageAsUnconfirmed(int messageId) {
+
+        JSONObject json = new JSONObject();
+        httpClient.patch(myPreferences.getHostUrl() + "/device-api/single-messages/" + messageId + "/mark-as-unconfirmed", json.toString(), new OwnHttpClient.HttpResponseCallback() {
+            @Override
+            public void onResponse(JSONObject data, int responseCode) {
+
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+
+            }
+
+            @Override
+            public void onError(JSONObject data, int responseCode) {
+
+            }
+        });
+    }
+
     public void saveReceivedMessage(String phoneNumber, String text, long timestamp) {
         saveReceivedMessage(phoneNumber, text, timestamp, new ResponseCallback() {
             @Override

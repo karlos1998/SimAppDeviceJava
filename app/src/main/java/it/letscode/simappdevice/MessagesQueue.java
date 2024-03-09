@@ -5,7 +5,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -18,7 +22,8 @@ public class MessagesQueue {
     private static final SmsSender smsSender = new SmsSender();
     private static final ControllerHttpGateway controllerHttpGateway = new ControllerHttpGateway();
 
-    private static List<MessageInQueue> messageInQueueList = new ArrayList<>();
+    private static final List<MessageInQueue> messageInQueueList = new ArrayList<>();
+    private static final Map<Integer, Date> messageInQueueMap = new HashMap<>();
 
     private static int queueLength = 0;
 
@@ -64,18 +69,22 @@ public class MessagesQueue {
 
     private static void doWork() {
         for(int i = 0; messageInQueueList.size() > 0 && i < 5; i++) {
+
+            MessageInQueue messageInQueue = messageInQueueList.get(0);
+
             queueLength++;
-            smsSender.sendSms(messageInQueueList.get(0));
+            messageInQueueMap.put(messageInQueue.getId(), new Date());
+
+            smsSender.sendSms(messageInQueue);
             messageInQueueList.remove(0);
         }
     }
 
     public static void messageActionDone(int messageId) {
 
-        //TODO: to nie bedzie wchodzic na nowszym androidzie > 9 wiec kolejka sie nigdy nie zwoilni..
-        //trzeba to przemyslec. ;x
-
         queueLength--;
+        messageInQueueMap.remove(messageId);
+
         if(queueLength <= 0) {
             try {
                 Thread.sleep(20 * 1000);
@@ -108,6 +117,36 @@ public class MessagesQueue {
                 scheduler.shutdownNow();
             }
             isTaskScheduled = false;
+        }
+    }
+
+    /**
+     * Metoda zapobiegawcza - potrzebna dla np androida >= 10 ktory nie zwraca informacji czy wyslala wiadomosc czy nie...
+     */
+    public static void startRemoveOldQueuedSmsLoopHelper() {
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        executor.scheduleAtFixedRate(MessagesQueue::removeOldMessagesFromQueue, 0, 1, TimeUnit.MINUTES);
+    }
+    private static void removeOldMessagesFromQueue() {
+        long timesAgo = System.currentTimeMillis() - 45 * 1000;
+        Iterator<Map.Entry<Integer, Date>> iterator = messageInQueueMap.entrySet().iterator();
+
+        boolean someoneRemoved = false;
+
+        while (iterator.hasNext()) {
+            Map.Entry<Integer, Date> entry = iterator.next();
+            if (entry.getValue().getTime() < timesAgo) {
+                System.out.println("Remove old sms in queue (android >= 10 problem ;x); Id: " + entry.getKey());
+                controllerHttpGateway.markMessageAsUnconfirmed(entry.getKey());
+
+                iterator.remove();
+                queueLength--;
+                someoneRemoved = true;
+            }
+        }
+
+        if(someoneRemoved) {
+            check();
         }
     }
 }
