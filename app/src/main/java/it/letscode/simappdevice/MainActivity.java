@@ -1,5 +1,7 @@
 package it.letscode.simappdevice;
 
+import static it.letscode.simappdevice.MessagesQueue.startRemoveOldQueuedSmsLoopHelper;
+
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -135,6 +137,8 @@ public class MainActivity extends AppCompatActivity {
             Device.login();
 
             pingServer.start();
+
+            startRemoveOldQueuedSmsLoopHelper();
 
             if(myPreferences.trustedNumberExist()) {
                 SmsSender smsSender = new SmsSender();

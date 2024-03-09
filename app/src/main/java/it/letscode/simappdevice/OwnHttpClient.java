@@ -40,6 +40,10 @@ public class OwnHttpClient {
     }
 
 
+    private void makeRequest(String method, String url, HttpResponseCallback callback) {
+        makeRequest(method, url, (new JSONObject()).toString(), callback);
+    }
+
     private void makeRequest(String method, String url, String json, HttpResponseCallback callback) {
         Log.d(TAG, "Request URK: " + url);
         Log.d(TAG, "Request JSON: " + json);
@@ -61,6 +65,9 @@ public class OwnHttpClient {
                     break;
                 case "PATCH":
                     builder.patch(body);
+                    break;
+                case "GET":
+                    builder.get();
                     break;
             }
 
@@ -123,5 +130,9 @@ public class OwnHttpClient {
 
     public void patch(String url, String json, HttpResponseCallback callback) {
         makeRequest("PATCH", url, json, callback);
+    }
+
+    public void get(String url, HttpResponseCallback callback) {
+        makeRequest("GET", url, callback);
     }
 }

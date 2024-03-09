@@ -1,9 +1,13 @@
 package it.letscode.simappdevice;
 
+import static it.letscode.simappdevice.MessagesQueue.checkMessagesQueueCrontabStart;
+
 import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.function.Function;
 
 import io.sentry.Sentry;
 
@@ -58,6 +62,10 @@ public class ControllerHttpGateway {
 
                     socketClient.setConfig(data.getJSONObject("socketConfig"));
                     socketClient.connectToPusher();
+
+                    MessagesQueue.check();
+
+                    checkMessagesQueueCrontabStart();
                 } catch (JSONException e) {
                     Log.d(TAG, "Nie udało się zalogowac (1)");
                     Sentry.captureException(e);
@@ -103,6 +111,10 @@ public class ControllerHttpGateway {
 
                     socketClient.setConfig(data.getJSONObject("socketConfig"));
                     socketClient.connectToPusher();
+
+                    //tutaj bez MessagesQueue.check() bo przeciez po sparowaniu urzadzenia nie beda czekac na nie sms do wyslania
+
+                    checkMessagesQueueCrontabStart();
                 } catch (JSONException e) {
                     Log.d(TAG, "Nie udało się sparować urządzenia (1)");
                     Sentry.captureException(e);
@@ -213,7 +225,7 @@ public class ControllerHttpGateway {
         } catch (JSONException e) {
             Sentry.captureException(e);
         }
-        httpClient.patch(myPreferences.getHostUrl() + "/device-api/messages/" + messageId + "/update-response-code", json.toString(), new OwnHttpClient.HttpResponseCallback() {
+        httpClient.patch(myPreferences.getHostUrl() + "/device-api/single-messages/" + messageId + "/update-response-code", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
             public void onResponse(JSONObject data, int responseCode) {
                 
@@ -262,6 +274,30 @@ public class ControllerHttpGateway {
         });
     }
 
+    /**
+     * Android >= 10 problem ;x
+     */
+    public void markMessageAsUnconfirmed(int messageId) {
+
+        JSONObject json = new JSONObject();
+        httpClient.patch(myPreferences.getHostUrl() + "/device-api/single-messages/" + messageId + "/mark-as-unconfirmed", json.toString(), new OwnHttpClient.HttpResponseCallback() {
+            @Override
+            public void onResponse(JSONObject data, int responseCode) {
+
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+
+            }
+
+            @Override
+            public void onError(JSONObject data, int responseCode) {
+
+            }
+        });
+    }
+
     public void saveReceivedMessage(String phoneNumber, String text, long timestamp) {
         saveReceivedMessage(phoneNumber, text, timestamp, new ResponseCallback() {
             @Override
@@ -282,7 +318,7 @@ public class ControllerHttpGateway {
         } catch (JSONException e) {
             Sentry.captureException(e);
         }
-        httpClient.patch(myPreferences.getHostUrl() + "/device-api/messages/" + messageId + "/order-received", json.toString(), new OwnHttpClient.HttpResponseCallback() {
+        httpClient.patch(myPreferences.getHostUrl() + "/device-api/single-messages/" + messageId + "/order-received", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
             public void onResponse(JSONObject data, int responseCode) {
                 
@@ -322,6 +358,34 @@ public class ControllerHttpGateway {
             @Override
             public void onFailure(Throwable throwable) {
                 Log.d(TAG, "Save Received Message Callback send error: ");
+                System.out.println(throwable.getMessage());
+            }
+
+            @Override
+            public void onError(JSONObject data, int responseCode) {
+
+            }
+        });
+    }
+
+    public void getSingleMessages() {
+
+        httpClient.get(myPreferences.getHostUrl() + "/device-api/single-messages", new OwnHttpClient.HttpResponseCallback() {
+            @Override
+            public void onResponse(JSONObject data, int responseCode) {
+                Log.d(TAG, "Pobrano liste wiadmoosci oczekujacych na nadanie");
+                try {
+                    MessagesQueue.addMessagesToQueue(data.getJSONArray("data"), data.getJSONObject("meta"));
+                } catch (JSONException e) {
+                    Log.d(TAG, "Nie udało się pobrac wiadomosci oczekujacych na nadanie - exception");
+                    System.out.println(e);
+                    Sentry.captureException(e);
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                Log.d(TAG, "Nie udało się pobrac wiadomosci oczekujacych na nadanie");
                 System.out.println(throwable.getMessage());
             }
 
