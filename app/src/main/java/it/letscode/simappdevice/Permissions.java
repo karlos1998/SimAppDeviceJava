@@ -12,13 +12,13 @@ import java.util.Map;
 import io.sentry.Sentry;
 import android.Manifest;
 public class Permissions {
-    public Map<String, Boolean> getAllPermissions(PackageManager packageManager) {
+    public Map<String, Boolean> getAllPermissions() {
         Map<String, Boolean> permissionsMap = new HashMap<>();
         try {
-            PackageInfo packageInfo = packageManager.getPackageInfo("it.letscode.simappdevice", PackageManager.GET_PERMISSIONS);
+            PackageInfo packageInfo = ApplicationContextProvider.getApplicationContext().getPackageManager().getPackageInfo("it.letscode.simappdevice", PackageManager.GET_PERMISSIONS);
             if (packageInfo != null && packageInfo.requestedPermissions != null) {
                 for (String permission : packageInfo.requestedPermissions) {
-                    int permissionCheck = packageManager.checkPermission(permission, "it.letscode.simappdevice");
+                    int permissionCheck = ApplicationContextProvider.getApplicationContext().getPackageManager().checkPermission(permission, "it.letscode.simappdevice");
                     permissionsMap.put(permission, permissionCheck == PackageManager.PERMISSION_GRANTED);
                 }
             }

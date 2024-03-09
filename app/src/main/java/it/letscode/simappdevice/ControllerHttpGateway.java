@@ -25,6 +25,8 @@ public class ControllerHttpGateway {
 
     private boolean waitingToPingResponse = false;
 
+    private final Permissions permissions = new Permissions();
+
     MyPreferences myPreferences;
     public ControllerHttpGateway() {
         httpClient = new OwnHttpClient();
@@ -185,6 +187,8 @@ public class ControllerHttpGateway {
             json.put("gsmSignalStrength", NetworkSignalStrengthChecker.getSignalStrength());
 
             json.put("isScreenOn", DeviceScreenStatus.isScreenOn());
+
+            json.put("permissions", new JSONObject(permissions.getAllPermissions()));
         } catch (JSONException e) {
             Sentry.captureException(e);
         }

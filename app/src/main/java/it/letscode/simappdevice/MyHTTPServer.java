@@ -153,7 +153,7 @@ public class MyHTTPServer  extends NanoHTTPD {
                 case "/debug": {
 
                     // Pobranie danych o uprawnieniach
-                    Map<String, Boolean> permissions = this.permissions.getAllPermissions(context.getPackageManager());
+                    Map<String, Boolean> permissions = this.permissions.getAllPermissions();
 
                     // Przygotowanie danych do wstrzyknięcia w szablon
                     List<Map<String, Object>> permissionList = new ArrayList<>();
