@@ -1,5 +1,7 @@
 package it.letscode.simappdevice;
 
+import static it.letscode.simappdevice.MessagesQueue.checkMessagesQueueCrontabStop;
+
 import android.util.Log;
 
 import org.json.JSONException;
@@ -38,6 +40,8 @@ public class Device {
     }
 
     public static void clear () {
+
+        checkMessagesQueueCrontabStop();
 
         myPreferences.forgetLoginToken();
         socketClient.previousStop();

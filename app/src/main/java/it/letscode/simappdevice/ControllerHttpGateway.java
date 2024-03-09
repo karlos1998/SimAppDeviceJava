@@ -1,5 +1,7 @@
 package it.letscode.simappdevice;
 
+import static it.letscode.simappdevice.MessagesQueue.checkMessagesQueueCrontabStart;
+
 import android.util.Log;
 
 import org.json.JSONException;
@@ -62,6 +64,8 @@ public class ControllerHttpGateway {
                     socketClient.connectToPusher();
 
                     MessagesQueue.check();
+
+                    checkMessagesQueueCrontabStart();
                 } catch (JSONException e) {
                     Log.d(TAG, "Nie udało się zalogowac (1)");
                     Sentry.captureException(e);
@@ -107,6 +111,10 @@ public class ControllerHttpGateway {
 
                     socketClient.setConfig(data.getJSONObject("socketConfig"));
                     socketClient.connectToPusher();
+
+                    //tutaj bez MessagesQueue.check() bo przeciez po sparowaniu urzadzenia nie beda czekac na nie sms do wyslania
+
+                    checkMessagesQueueCrontabStart();
                 } catch (JSONException e) {
                     Log.d(TAG, "Nie udało się sparować urządzenia (1)");
                     Sentry.captureException(e);
