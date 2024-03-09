@@ -91,11 +91,11 @@ public class SystemInfo {
         return deviceInfo;
     }
 
-    private String getManufacturer() {
+    public String getManufacturer() {
         return Build.MANUFACTURER;
     }
 
-    private String getModel() {
+    public String getModel() {
         return Build.MODEL;
     }
 

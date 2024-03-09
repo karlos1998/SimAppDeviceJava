@@ -288,6 +288,8 @@ public class MyHTTPServer  extends NanoHTTPD {
                 }});
 
                 put("deviceUuid", myPreferences.getDeviceUuid() );
+
+                put("generatedDeviceName", String.format("%s %s", systemInfo.getManufacturer(), systemInfo.getModel()));
             } catch (JSONException e) {
                 Sentry.captureException(e);
             }
