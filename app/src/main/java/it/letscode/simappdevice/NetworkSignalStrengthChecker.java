@@ -31,8 +31,6 @@ public class NetworkSignalStrengthChecker {
     public void startSignalStrengthCheck() {
         final TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 
-//        ControllerHttpGateway controllerHttpGateway = new ControllerHttpGateway();
-
         PhoneStateListener phoneStateListener = new PhoneStateListener() {
             @Override
             public void onSignalStrengthsChanged(SignalStrength signalStrength) {
@@ -43,14 +41,10 @@ public class NetworkSignalStrengthChecker {
                     lastKnownSignalStrength = convertSignal(signalStrength);
 
                     lastLoggedTime = currentTime;
-
-//                    controllerHttpGateway.sendSignalStrength(lastKnownSignalStrength);
-
                 }
             }
         };
 
-        // Rejestracja PhoneStateListener do odczytu zmian w sygnale
         telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
     }
 
@@ -58,12 +52,7 @@ public class NetworkSignalStrengthChecker {
         if (signalStrength == null) {
             return 0;
         } else {
-            if (signalStrength.isGsm()) {
-                int signalDbm = signalStrength.getGsmSignalStrength();
-                return (2 * signalDbm) - 113; // Konwersja sygnału GSM na dBm
-            } else {
-                return signalStrength.getCdmaDbm();
-            }
+            return signalStrength.getLevel() * 2 - 113;
         }
     }
 
