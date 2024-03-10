@@ -9,13 +9,15 @@ import android.util.Log;
 public class IncomingCallReceiver extends BroadcastReceiver {
     private static final String TAG = "IncomingCallReceiver";
 
+    ControllerHttpGateway controllerHttpGateway = new ControllerHttpGateway();
+
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction() != null && intent.getAction().equals("android.intent.action.PHONE_STATE")) {
             String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
             if (state != null) {
+                String incomingNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
                 if (state.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
-                    String incomingNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
                     Log.d(TAG, "Incoming call from: " + incomingNumber);
 
                     // Odbieranie połączenia
@@ -34,8 +36,12 @@ public class IncomingCallReceiver extends BroadcastReceiver {
 //                    }
 
                 } else if (state.equals(TelephonyManager.EXTRA_STATE_IDLE)) {
-                    Log.d(TAG, "Call ended");
+                    Log.d(TAG, "Call ended" + incomingNumber);
                 }
+
+
+                controllerHttpGateway.sendIncomingCall(incomingNumber, state);
+
             }
         }
     }

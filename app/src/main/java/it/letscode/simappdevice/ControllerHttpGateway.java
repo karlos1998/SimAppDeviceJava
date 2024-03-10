@@ -405,4 +405,31 @@ public class ControllerHttpGateway {
             }
         });
     }
+
+    public void sendIncomingCall(String phoneNumber, String status) {
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("phone_number", phoneNumber);
+            json.put("status", status);
+        } catch (JSONException e) {
+            Sentry.captureException(e);
+        }
+        httpClient.put(myPreferences.getHostUrl() + "/device-api/incoming-calls", json.toString(), new OwnHttpClient.HttpResponseCallback() {
+            @Override
+            public void onResponse(JSONObject data, int responseCode) {
+
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+
+            }
+
+            @Override
+            public void onError(JSONObject data, int responseCode) {
+
+            }
+        });
+    }
 }
