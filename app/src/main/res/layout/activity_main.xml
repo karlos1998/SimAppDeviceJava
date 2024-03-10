@@ -4,27 +4,85 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/black"
     tools:context=".MainActivity">
 
     <TextView
-        android:layout_width="350dp"
-        android:layout_height="31dp"
-        android:text="Sim App Device"
+        android:id="@+id/textView"
+        android:layout_width="344dp"
+        android:layout_height="37dp"
+        android:layout_marginStart="24dp"
+        android:text="Simply Connect App"
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.123" />
+        app:layout_constraintVertical_bias="0.061" />
 
     <TextView
         android:id="@+id/ip_address_text_view"
         android:layout_width="wrap_content"
         android:layout_height="22dp"
-        android:layout_marginStart="28dp"
-        android:layout_marginBottom="576dp"
+        android:layout_marginTop="44dp"
         android:text="TextView"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="@+id/textView"
+        app:layout_constraintTop_toTopOf="@+id/textView" />
+
+
+    <LinearLayout
+        android:id="@+id/http_status_board"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        app:layout_constraintStart_toStartOf="@+id/ip_address_text_view"
+        app:layout_constraintTop_toBottomOf="@+id/ip_address_text_view">
+
+        <ImageView
+            android:id="@+id/http_status_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/red_circle" /> <!-- Zastąp 'green_circle' nazwą Twojego zasobu obrazu -->
+
+        <TextView
+            android:id="@+id/http_status_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Brak połączenia z Serverem WWW"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:id="@+id/socket_status_board"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        app:layout_constraintStart_toStartOf="@+id/http_status_board"
+        app:layout_constraintTop_toBottomOf="@+id/http_status_board">
+
+        <ImageView
+            android:id="@+id/socket_status_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/red_circle" /> <!-- Zastąp 'green_circle' nazwą Twojego zasobu obrazu -->
+
+        <TextView
+            android:id="@+id/socket_status_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Brak połączenia z Serverem Socket"
+            android:textSize="16sp" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

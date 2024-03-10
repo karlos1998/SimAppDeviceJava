@@ -21,6 +21,9 @@ public class PingServer {
         socketNotLoggedCount = 0;
     }
     public static void receiveLoginStatus(boolean isLoggedIn) {
+
+        ViewManager.changeHttpConnectionStatus(isLoggedIn);
+
         PingServer.isLoggedIn = isLoggedIn;
         if(myPreferences.isLoginTokenExist()) {
             if(!isLoggedIn) {

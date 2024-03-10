@@ -2,38 +2,27 @@ package it.letscode.simappdevice;
 
 import static it.letscode.simappdevice.MessagesQueue.startRemoveOldQueuedSmsLoopHelper;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.util.Log;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.IOException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
-import android.content.pm.PackageManager;
 import android.widget.Toast;
 
-import org.json.JSONException;
 import io.sentry.Sentry;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ViewManagerListener {
 
     private static final int PERMISSIONS_REQUEST_CODE = 1;
     private MyHTTPServer server;
@@ -63,6 +52,9 @@ public class MainActivity extends AppCompatActivity {
 
         int port = 8888;
         try {
+
+            ViewManager.registerListener(this);
+
             server = new MyHTTPServer(this, port);
             server.start();
             System.out.println("Serwer działa na porcie: " + port);
@@ -159,6 +151,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        ViewManager.unregisterListener(this);
+
         super.onDestroy();
         if (server != null) {
             server.stop();
@@ -166,5 +160,39 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    @SuppressLint("SetTextI18n")
+    @Override
+    public void onHttpConnectionStatusChanged(boolean isConnected) {
+        runOnUiThread(() -> {
+            ImageView statusIcon = findViewById(R.id.http_status_icon);
+            TextView statusText = findViewById(R.id.http_status_text);
+
+            if (isConnected) {
+                statusIcon.setImageResource(R.drawable.green_circle);
+                statusText.setText("Połączono z serwerem WWW");
+            } else {
+                statusIcon.setImageResource(R.drawable.red_circle);
+                statusText.setText("Brak połączenia z serwerem WWW");
+            }
+        });
+    }
+
+    @SuppressLint("SetTextI18n")
+    @Override
+    public void onSocketConnectionStatusChanged(boolean isConnected) {
+        runOnUiThread(() -> {
+            ImageView statusIcon = findViewById(R.id.socket_status_icon);
+            TextView statusText = findViewById(R.id.socket_status_text);
+
+            if (isConnected) {
+                statusIcon.setImageResource(R.drawable.green_circle);
+                statusText.setText("Połączono z serwerem Socket");
+            } else {
+                statusIcon.setImageResource(R.drawable.red_circle);
+                statusText.setText("Brak połączenia z serwerem Socket");
+            }
+        });
+    }
 
 }

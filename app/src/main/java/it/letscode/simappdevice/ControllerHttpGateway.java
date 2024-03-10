@@ -65,6 +65,9 @@ public class ControllerHttpGateway {
                     socketClient.setConfig(data.getJSONObject("socketConfig"));
                     socketClient.connectToPusher();
 
+                    PingServer.isLoggedIn = true;
+                    ViewManager.changeHttpConnectionStatus(true);
+
                     MessagesQueue.check();
 
                     checkMessagesQueueCrontabStart();
@@ -113,6 +116,9 @@ public class ControllerHttpGateway {
 
                     socketClient.setConfig(data.getJSONObject("socketConfig"));
                     socketClient.connectToPusher();
+
+                    PingServer.isLoggedIn = true;
+                    ViewManager.changeHttpConnectionStatus(true);
 
                     //tutaj bez MessagesQueue.check() bo przeciez po sparowaniu urzadzenia nie beda czekac na nie sms do wyslania
 

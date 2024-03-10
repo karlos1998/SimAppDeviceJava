@@ -1,6 +1,7 @@
 package it.letscode.simappdevice;
 
 import android.util.Log;
+import android.view.View;
 
 import com.pusher.client.AuthorizationFailureException;
 import com.pusher.client.Pusher;
@@ -142,6 +143,8 @@ public class SocketClient {
             public void onConnectionStateChange(ConnectionStateChange change) {
                 Log.d("Pusher", "State changed to " + change.getCurrentState() +
                         " from " + change.getPreviousState());
+
+                ViewManager.changeSocketConnectionStatus(change.getCurrentState().equals(ConnectionState.CONNECTED));
             }
 
             @Override
