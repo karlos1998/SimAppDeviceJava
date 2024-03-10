@@ -85,4 +85,49 @@
             android:textSize="16sp" />
     </LinearLayout>
 
+
+    <TableLayout
+        android:layout_width="351dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="12dp"
+        android:stretchColumns="1"
+        app:layout_constraintStart_toStartOf="@+id/socket_status_board"
+        app:layout_constraintTop_toBottomOf="@+id/socket_status_board">
+
+        <TableRow>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Adres Controllera: " />
+
+            <TextView
+                android:id="@+id/controller_url"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="8dp"
+                android:text="{URL}"
+                android:maxLines="1"
+                android:scrollHorizontally="true"
+                android:ellipsize="end" />
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:layout_width="134dp"
+                android:layout_height="wrap_content"
+                android:text="Id Urządzenia: " />
+
+            <TextView
+                android:id="@+id/device_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="8dp"
+                android:text="{ID}" />
+        </TableRow>
+
+    </TableLayout>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

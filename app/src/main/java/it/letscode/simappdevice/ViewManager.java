@@ -25,4 +25,16 @@ public class ViewManager {
             listener.onSocketConnectionStatusChanged(isConnected);
         }
     }
+
+    public static void changeControllerUrl(String url) {
+        for (ViewManagerListener listener : listeners) {
+            listener.noControllerUrlChanged(url);
+        }
+    }
+
+    public static void changeDeviceId(String deviceId) {
+        for (ViewManagerListener listener : listeners) {
+            listener.onDeviceIdChanged(deviceId);
+        }
+    }
 }

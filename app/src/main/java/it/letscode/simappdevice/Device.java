@@ -28,6 +28,9 @@ public class Device {
     public static void setFromLoginResponse(JSONObject obj) {
         try {
             deviceId = obj.getString("deviceId");
+
+            ViewManager.changeDeviceId(deviceId);
+
             deviceName = obj.getString("deviceName");
             loginToken = obj.getString("loginToken");
             authToken = obj.getString("authToken");
@@ -45,6 +48,8 @@ public class Device {
 
         myPreferences.forgetLoginToken();
         socketClient.previousStop();
+
+        ViewManager.changeDeviceId("Nie nadano");
 
         deviceId = null;
         deviceName = null;

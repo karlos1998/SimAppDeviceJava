@@ -2,6 +2,7 @@ package it.letscode.simappdevice;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.view.View;
 
 import java.util.Map;
 import java.util.UUID;
@@ -31,6 +32,8 @@ public class MyPreferences {
      * @param url String
      */
     public void setHostUrl(String url) {
+        ViewManager.changeControllerUrl(url);
+
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(HOST_URL_KEY, url);
         editor.apply();
@@ -41,7 +44,9 @@ public class MyPreferences {
      * @return String
      */
     public String getHostUrl() {
-        return prefs.getString(HOST_URL_KEY, DEFAULT_HOST_URL);
+        String url = prefs.getString(HOST_URL_KEY, DEFAULT_HOST_URL);
+        ViewManager.changeControllerUrl(url);
+        return url;
     }
 
     /**

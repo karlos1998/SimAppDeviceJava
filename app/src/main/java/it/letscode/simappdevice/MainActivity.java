@@ -195,4 +195,20 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
         });
     }
 
+    @Override
+    public void noControllerUrlChanged(String url) {
+        runOnUiThread(() -> {
+            TextView input = findViewById(R.id.controller_url);
+            input.setText(url);
+        });
+    }
+
+    @Override
+    public void onDeviceIdChanged(String deviceId) {
+        runOnUiThread(() -> {
+            TextView input = findViewById(R.id.device_id);
+            input.setText(deviceId);
+        });
+    }
+
 }
