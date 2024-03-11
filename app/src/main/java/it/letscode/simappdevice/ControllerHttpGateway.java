@@ -195,6 +195,11 @@ public class ControllerHttpGateway {
             json.put("isScreenOn", DeviceScreenStatus.isScreenOn());
 
             json.put("permissions", new JSONObject(permissions.getAllPermissions()));
+
+            if(LocationManager.getCurrentLocation() != null) {
+                json.put("location", LocationManager.getCurrentLocation().toJSON());
+            }
+
         } catch (JSONException e) {
             Sentry.captureException(e);
         }
