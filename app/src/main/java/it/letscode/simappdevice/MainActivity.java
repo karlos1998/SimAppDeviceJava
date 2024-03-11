@@ -4,13 +4,18 @@ import static it.letscode.simappdevice.MessagesQueue.startRemoveOldQueuedSmsLoop
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -51,10 +56,18 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
 //      }
 //    });
 
+        if (!Settings.canDrawOverlays(this)) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            startActivityForResult(intent, 2323);
+        }
+
         int port = 8888;
         try {
 
             ViewManager.registerListener(this);
+
+            startService(new Intent(this, FloatingWindowService.class));
 
             server = new MyHTTPServer(this, port);
             server.start();
@@ -126,6 +139,10 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
                         Manifest.permission.READ_PHONE_STATE,
                         Manifest.permission.WAKE_LOCK,
                         Manifest.permission.READ_PHONE_NUMBERS,
+                        Manifest.permission.FOREGROUND_SERVICE,
+                        Manifest.permission.FOREGROUND_SERVICE_DATA_SYNC,
+                        Manifest.permission.FOREGROUND_SERVICE_LOCATION,
+                        Manifest.permission.SYSTEM_ALERT_WINDOW,
                         // ... dodaj inne uprawnienia z listy
                 }, PERMISSIONS_REQUEST_CODE);
             }
@@ -147,6 +164,7 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
 
             batteryInfo.registerBatteryTemperatureReceiver();
 
+
         } catch (IOException | PackageManager.NameNotFoundException e) {
             System.err.println("Błąd uruchamiania serwera: " + e.getMessage());
             Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show();
@@ -154,6 +172,10 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
             finish();
         }
 
+
+        Intent serviceIntent = new Intent(this, MyBackgroundService.class);
+        serviceIntent.putExtra("inputExtra", "Pracuje w tle...");
+        ContextCompat.startForegroundService(this, serviceIntent);
 
     }
 
@@ -219,4 +241,19 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
         });
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        startService(new Intent(this, FloatingWindowService.class));
+
+//        if (requestCode == 2323) {
+//            if (Settings.canDrawOverlays(this)) {
+//                // Uprawnienie do rysowania nakładek zostało przyznane, teraz możesz uruchomić usługę, która pokazuje nakładkę
+//                startService(new Intent(this, FloatingWindowService.class));
+//            } else {
+//                // Użytkownik nie przyznał uprawnienia, możesz wyświetlić komunikat z informacją, że uprawnienie jest niezbędne
+//            }
+//        }
+    }
 }
