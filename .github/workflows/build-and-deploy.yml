@@ -23,6 +23,9 @@ jobs:
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
+      - name: List output APK files
+        run: find . -name "*.apk" | xargs ls -lh
+
       - name: Add SSH key
         env:
           SSH_KEY: ${{ secrets.SSH_KEY }}
@@ -34,4 +37,4 @@ jobs:
           ssh-agent bash -c 'ssh-add ~/.ssh/id_rsa; '
 
       - name: Copy APK to the server
-        run: scp app/build/outputs/apk/release/app-release.apk fadeusz@srv01.letscode.it:/home/fadeusz/domains/srv01.letscode.it/public
+        run: scp app/build/outputs/apk/release/app-release.apk fadeusz@srv01.letscode.it:/home/fadeusz/domains/download.simply-connect.ovh/public
