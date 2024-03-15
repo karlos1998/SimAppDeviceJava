@@ -28,9 +28,6 @@ jobs:
         run: ./gradlew assembleRelease
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_ALIAS_PASSWORD: ${{ secrets.KEY_ALIAS_PASSWORD }}
 
       - name: List output APK files
         run: find . -name "*.apk" | xargs ls -lh
@@ -43,9 +40,10 @@ jobs:
         run: |
           jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore my-release-key.keystore -storepass $KEYSTORE_PASSWORD -keypass $KEY_ALIAS_PASSWORD app/build/outputs/apk/release/app-release-unsigned.apk $KEY_ALIAS
 
-      - name: Zipalign APK
+      - name: Align APK
         run: |
-          $ANDROID_SDK_ROOT/build-tools/30.0.3/zipalign -v 4 app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/app-release.apk
+          ZIPALIGN=$(find $ANDROID_SDK_ROOT/build-tools/ -name zipalign | sort | tail -n 1)
+          $ZIPALIGN -v 4 app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/app-release.apk
 
       - name: Add SSH key
         env:
