@@ -1,0 +1,17 @@
+name: Build and Deploy
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Build Release APK
+        run: ./gradlew assembleRelease
+      - name: Upload APK to Server
+        run: scp build/outputs/apk/release/app-release.apk fadeusz@srv01.letscode.it:/home/fadeusz/domains/srv01.letscode.it/public
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
