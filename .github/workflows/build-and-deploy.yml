@@ -18,13 +18,34 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
+      - name: Decode Keystore
+        env:
+          KEYSTORE: ${{ secrets.KEYSTORE }}
+        run: |
+          echo "$KEYSTORE" | base64 --decode > my-release-key.keystore
+
       - name: Build with Gradle
         run: ./gradlew assembleRelease
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_ALIAS_PASSWORD: ${{ secrets.KEY_ALIAS_PASSWORD }}
 
       - name: List output APK files
         run: find . -name "*.apk" | xargs ls -lh
+
+      - name: Sign APK
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_ALIAS_PASSWORD: ${{ secrets.KEY_ALIAS_PASSWORD }}
+        run: |
+          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore my-release-key.keystore -storepass $KEYSTORE_PASSWORD -keypass $KEY_ALIAS_PASSWORD app/build/outputs/apk/release/app-release-unsigned.apk $KEY_ALIAS
+
+      - name: Zipalign APK
+        run: |
+          $ANDROID_SDK_ROOT/build-tools/30.0.3/zipalign -v 4 app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/app-release.apk
 
       - name: Add SSH key
         env:
@@ -37,4 +58,4 @@ jobs:
           ssh-agent bash -c 'ssh-add ~/.ssh/id_rsa; '
 
       - name: Copy APK to the server
-        run: scp app/build/outputs/apk/release/app-release-unsigned.apk fadeusz@srv01.letscode.it:/home/fadeusz/domains/download.simply-connect.ovh/public
+        run: scp app/build/outputs/apk/release/app-release.apk fadeusz@srv01.letscode.it:/home/fadeusz/domains/download.simply-connect.ovh/public
