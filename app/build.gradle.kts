@@ -47,6 +47,8 @@ dependencies {
     implementation("com.pusher:pusher-java-client:2.4.4")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3") //need to pusher for android 5 / 6
     implementation("com.squareup.okhttp3:okhttp:4.9.0");
+    implementation("com.google.android.gms:play-services-location:18.0.0");
+
 }
 
 sentry {

@@ -147,6 +147,16 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
 
             batteryInfo.registerBatteryTemperatureReceiver();
 
+            LocationManager locationManager = new LocationManager(this);
+//            locationManager.setListener(new LocationManager.LocationUpdateListener() {
+//                @Override
+//                public void onLocationUpdated(LocationManager.LocationData location) {
+//                    // Reaguj na aktualizacje lokalizacji, np. aktualizuj UI
+//                    System.out.println("Nowa lokalizacja: Latitude: " + location.latitude + ", Longitude: " + location.longitude);
+//                }
+//            });
+            locationManager.startLocationUpdates();
+
         } catch (IOException | PackageManager.NameNotFoundException e) {
             System.err.println("Błąd uruchamiania serwera: " + e.getMessage());
             Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show();

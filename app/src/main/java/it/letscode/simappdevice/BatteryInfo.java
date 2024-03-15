@@ -30,7 +30,7 @@ public class BatteryInfo {
 
             JSONObject batteryInfo = new JSONObject();
             try {
-                batteryInfo.put("percentage", batteryPct * 100);
+                batteryInfo.put("percentage", Math.ceil(batteryPct * 100));
                 batteryInfo.put("isCharging", isCharging);
                 batteryInfo.put("temperature", lastKnownTemperature);
             } catch (JSONException e) {
