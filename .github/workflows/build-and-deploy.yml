@@ -37,4 +37,4 @@ jobs:
           ssh-agent bash -c 'ssh-add ~/.ssh/id_rsa; '
 
       - name: Copy APK to the server
-        run: scp app/build/outputs/apk/release/app-release.apk fadeusz@srv01.letscode.it:/home/fadeusz/domains/download.simply-connect.ovh/public
+        run: scp app/build/outputs/apk/release/app-release-unsigned.apk fadeusz@srv01.letscode.it:/home/fadeusz/domains/download.simply-connect.ovh/public
