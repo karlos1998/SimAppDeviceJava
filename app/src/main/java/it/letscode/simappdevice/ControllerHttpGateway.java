@@ -1,6 +1,7 @@
 package it.letscode.simappdevice;
 
 import static it.letscode.simappdevice.MessagesQueue.checkMessagesQueueCrontabStart;
+import static it.letscode.simappdevice.VersionManager.getVersionJson;
 
 import android.util.Log;
 
@@ -48,6 +49,7 @@ public class ControllerHttpGateway {
         try {
             json.put("token", token);
             json.put("systemInfo", systemInfo.getJsonDetails());
+            json.put("version", getVersionJson());
         } catch (JSONException e) {
             Sentry.captureException(e);
             return;
@@ -101,6 +103,7 @@ public class ControllerHttpGateway {
         try {
             json.put("token", token);
             json.put("systemInfo", systemInfo.getJsonDetails());
+            json.put("version", getVersionJson());
         } catch (JSONException e) {
             Sentry.captureException(e);
         }

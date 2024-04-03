@@ -36,14 +36,5 @@ jobs:
           ssh-keyscan -t rsa srv01.letscode.it >> ~/.ssh/known_hosts
           ssh-agent bash -c 'ssh-add ~/.ssh/id_rsa; '
 
-      - name: Extract version name
-        run: |
-          VERSION_NAME=$(grep 'versionName' app/build.gradle.kts | awk '{print $3}' | tr -d "\"")
-          echo "Version Name: $VERSION_NAME"
-          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
-
       - name: Copy APK to the server
-        run: |
-          scp app/build/outputs/apk/debug/app-debug.apk fadeusz@srv01.letscode.it:/home/fadeusz/domains/download.simply-connect.ovh/public/app-debug.apk
-          scp app/build/outputs/apk/debug/app-debug.apk fadeusz@srv01.letscode.it:/home/fadeusz/domains/download.simply-connect.ovh/public/app-debug-${{ env.VERSION_NAME }}.apk
-      
+        run: scp app/build/outputs/apk/debug/app-debug.apk fadeusz@srv01.letscode.it:/home/fadeusz/domains/download.simply-connect.ovh/public

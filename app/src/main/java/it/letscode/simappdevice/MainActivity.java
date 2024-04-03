@@ -72,7 +72,6 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
             throw new RuntimeException(e);
         }
 
-
         /**
          * Full screen
          */

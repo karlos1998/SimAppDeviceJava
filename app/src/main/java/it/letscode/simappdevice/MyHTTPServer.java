@@ -2,6 +2,8 @@ package it.letscode.simappdevice;
 
 import static java.security.AccessController.getContext;
 
+import static it.letscode.simappdevice.VersionManager.getVersionJson;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 
@@ -269,8 +271,7 @@ public class MyHTTPServer  extends NanoHTTPD {
                 put("loginTokenExist", myPreferences.isLoginTokenExist());
                 put("signalStrength", NetworkSignalStrengthChecker.getSignalStrength());
 
-                put("versionName", ApplicationContextProvider.getPackageInfo().versionName);
-                put("versionCode", ApplicationContextProvider.getPackageInfo().versionCode);
+                put("version", getVersionJson());
 
                 put("controllerUrl", myPreferences.getHostUrl());
 
