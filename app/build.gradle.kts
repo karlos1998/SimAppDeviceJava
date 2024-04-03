@@ -64,12 +64,10 @@ sentry {
     includeSourceContext.set(true)
 }
 
-// Funkcja generująca versionCode
 fun generateVersionCode(): Int {
     return (Date().time / 1000).toInt()
 }
 
-// Funkcja generująca versionName
 fun generateVersionName(): String {
     val dateFormat = SimpleDateFormat("yyyy.MM.dd.HH.mm.ss")
     return dateFormat.format(Date())
