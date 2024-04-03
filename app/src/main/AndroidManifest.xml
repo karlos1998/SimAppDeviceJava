@@ -44,6 +44,11 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -55,8 +60,15 @@
         android:theme="@style/Theme.SimAppDevice"
         tools:targetApi="31">
 
-        <service android:name=".MyBackgroundService" />
 
+        <service
+            android:name=".WifiKeeperService"
+            android:enabled="true"
+            android:exported="true">
+        </service>
+
+
+<!--        Przy uruchomieniu telefonu-->
         <receiver android:name=".BootReceiver"
             android:exported="true">
             <intent-filter>
@@ -67,7 +79,8 @@
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait"
-            android:exported="true">
+            android:exported="true"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
