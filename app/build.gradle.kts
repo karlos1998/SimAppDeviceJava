@@ -1,3 +1,6 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+
 plugins {
     id("com.android.application")
 
@@ -12,8 +15,9 @@ android {
         applicationId = "it.letscode.simappdevice"
         minSdk = 23
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+
+        versionCode = generateVersionCode()
+        versionName = generateVersionName()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -58,4 +62,15 @@ sentry {
     // this will upload your source code to Sentry to show it as part of the stack traces
     // disable if you don't want to expose your sources
     includeSourceContext.set(true)
+}
+
+// Funkcja generująca versionCode
+fun generateVersionCode(): Int {
+    return (Date().time / 1000).toInt()
+}
+
+// Funkcja generująca versionName
+fun generateVersionName(): String {
+    val dateFormat = SimpleDateFormat("yyyy.MM.dd.HH.mm.ss")
+    return dateFormat.format(Date())
 }
