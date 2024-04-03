@@ -60,17 +60,8 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
 
         super.onCreate(savedInstanceState);
 
-
         setContentView(R.layout.activity_main);
 
-        PackageManager packageManager = getPackageManager();
-        PackageInfo packageInfo = null;
-        try {
-            packageInfo = packageManager.getPackageInfo(getPackageName(), 0);
-            ApplicationContextProvider.setPackageInfo(packageInfo);
-        } catch (PackageManager.NameNotFoundException e) {
-            throw new RuntimeException(e);
-        }
 
         /**
          * Full screen
@@ -112,7 +103,10 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
         }
 
 
-        //Don't hate me!
+        /**
+         * Don't hate me!
+         * ! Important
+         */
         ApplicationContextProvider.initialize(getApplicationContext());
 
 
