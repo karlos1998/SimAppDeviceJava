@@ -4,13 +4,26 @@ import static it.letscode.simappdevice.MessagesQueue.startRemoveOldQueuedSmsLoop
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.Service;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.PowerManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -26,156 +39,68 @@ import io.sentry.Sentry;
 public class MainActivity extends AppCompatActivity implements ViewManagerListener {
 
     private static final int PERMISSIONS_REQUEST_CODE = 1;
-    private MyHTTPServer server;
-    private TextView ipAddressTextView;
 
-    private final PingServer pingServer = new PingServer();
-    private final BatteryInfo batteryInfo = new BatteryInfo();
+//    private static MyHTTPServer server = new MyHTTPServer(this, 8888);
 
-    private final Permissions permissions = new Permissions();
+//    private TextView ipAddressTextView;
+//
+//    private final PingServer pingServer = new PingServer();
+//    private final BatteryInfo batteryInfo = new BatteryInfo();
+//
+//    private final Permissions permissions = new Permissions();
+
+    private static final int MY_PERMISSIONS_REQUEST_POST_NOTIFICATIONS = 1;
 
     @SuppressLint({"MissingInflatedId", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        super.onCreate(savedInstanceState);
 
-        PackageManager packageManager = getPackageManager();
+//        openNotificationSettingsForApp();
 
-
-//    // waiting for view to draw to better represent a captured error with a screenshot
-//    findViewById(android.R.id.content).getViewTreeObserver().addOnGlobalLayoutListener(() -> {
-//      try {
-//        throw new Exception("This app uses Sentry! :)");
-//      } catch (Exception e) {
-//        Sentry.captureException(e);
-//      }
-//    });
-
-        int port = 8888;
-        try {
-
-            ViewManager.registerListener(this);
-
-            server = new MyHTTPServer(this, port);
-            server.start();
-            System.out.println("Serwer działa na porcie: " + port);
-
-            PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-            PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-                    "MyApp::MyWakeLockTag");
-
-            // Aby zapobiec usypianiu
-            wakeLock.acquire();
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-            ApplicationContextProvider.initialize(getApplicationContext());
-
-            PackageInfo packageInfo = packageManager.getPackageInfo(getPackageName(), 0);
-
-            ApplicationContextProvider.setPackageInfo(packageInfo);
-
-            super.onCreate(savedInstanceState);
-
-            setContentView(R.layout.activity_main);
-
-            // full screeen
-            View decorView = getWindow().getDecorView();
-            decorView.setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-
-            MyPreferences myPreferences = new MyPreferences();
-
-            myPreferences.setContext(getApplicationContext());
-
-            myPreferences.generateDeviceUuidIfNotExist();
-
-            String prefsContent = myPreferences.getAllPreferences();
-            Log.d("SharedPreferences", "Zawartość: " + prefsContent);
-
-
-
-            ipAddressTextView = findViewById(R.id.ip_address_text_view);
-
-            Wifi wifi = new Wifi();
-            String ipAddress = wifi.getOnlyIpString();
-            ipAddressTextView.setText("URI: http://" + ipAddress + ":" + port);
-
-
-
-
-            if (!permissions.hasAllPermissionsGranted()) {
-                ActivityCompat.requestPermissions(this, new String[]{
-                        android.Manifest.permission.SEND_SMS,
-                        android.Manifest.permission.RECEIVE_SMS,
-                        android.Manifest.permission.READ_SMS,
-                        android.Manifest.permission.CALL_PHONE,
-                        android.Manifest.permission.RECEIVE_WAP_PUSH,
-                        android.Manifest.permission.RECEIVE_MMS,
-                        android.Manifest.permission.RECEIVE_BOOT_COMPLETED,
-                        android.Manifest.permission.ACCESS_FINE_LOCATION,
-                        android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                        android.Manifest.permission.CHANGE_WIFI_STATE,
-                        android.Manifest.permission.INTERNET,
-                        android.Manifest.permission.ACCESS_NETWORK_STATE,
-                        android.Manifest.permission.CHANGE_NETWORK_STATE,
-                        android.Manifest.permission.ACCESS_WIFI_STATE,
-                        android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.READ_PHONE_STATE,
-                        Manifest.permission.WAKE_LOCK,
-                        Manifest.permission.READ_PHONE_NUMBERS,
-                        // ... dodaj inne uprawnienia z listy
-                }, PERMISSIONS_REQUEST_CODE);
-            }
-
-
-            NetworkSignalStrengthChecker networkSignalStrengthChecker = new NetworkSignalStrengthChecker(this);
-            networkSignalStrengthChecker.startSignalStrengthCheck();
-
-            Device.login();
-
-            pingServer.start();
-
-            startRemoveOldQueuedSmsLoopHelper();
-
-            if(myPreferences.trustedNumberExist()) {
-                SmsSender smsSender = new SmsSender();
-                smsSender.sendSms(myPreferences.getTrustedNumber(), "Start Sim App Device");
-            }
-
-            batteryInfo.registerBatteryTemperatureReceiver();
-
-            LocationManager locationManager = new LocationManager(this);
-//            locationManager.setListener(new LocationManager.LocationUpdateListener() {
-//                @Override
-//                public void onLocationUpdated(LocationManager.LocationData location) {
-//                    // Reaguj na aktualizacje lokalizacji, np. aktualizuj UI
-//                    System.out.println("Nowa lokalizacja: Latitude: " + location.latitude + ", Longitude: " + location.longitude);
-//                }
-//            });
-            locationManager.startLocationUpdates();
-
-        } catch (IOException | PackageManager.NameNotFoundException e) {
-            System.err.println("Błąd uruchamiania serwera: " + e.getMessage());
-            Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show();
-            Sentry.captureException(e);
-            finish();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.app_name);
+            String description = getString(R.string.app_name);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("LCI_APP1", name, importance);
+            channel.setDescription(description);
+            // Zarejestruj kanał w systemie
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
         }
 
 
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.POST_NOTIFICATIONS }, MY_PERMISSIONS_REQUEST_POST_NOTIFICATIONS);
+            }
+        }
+
+        Intent serviceIntent = new Intent(this, WifiKeeperService.class);
+//        startService(serviceIntent);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent); // od oreo wzwyz podobno
+        } else {
+            startService(serviceIntent);
+        }
+
+        finish();
+
     }
+
 
     @Override
     protected void onDestroy() {
         ViewManager.unregisterListener(this);
 
         super.onDestroy();
-        if (server != null) {
-            server.stop();
-            pingServer.stop();
-        }
+//        if (server != null) {
+//            server.stop();
+//            pingServer.stop();
+//        }
     }
 
 
@@ -230,3 +155,6 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
     }
 
 }
+
+
+
