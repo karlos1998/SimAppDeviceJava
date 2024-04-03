@@ -1,5 +1,6 @@
 package it.letscode.simappdevice;
 
+import static it.letscode.simappdevice.ApplicationContextProvider.getApplicationContext;
 import static it.letscode.simappdevice.MessagesQueue.startRemoveOldQueuedSmsLoopHelper;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -51,14 +52,81 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
 
     private static final int MY_PERMISSIONS_REQUEST_POST_NOTIFICATIONS = 1;
 
+    private static final Permissions permissions = new Permissions();
+
     @SuppressLint({"MissingInflatedId", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
 
-//        openNotificationSettingsForApp();
 
+        setContentView(R.layout.activity_main);
+
+        PackageManager packageManager = getPackageManager();
+        PackageInfo packageInfo = null;
+        try {
+            packageInfo = packageManager.getPackageInfo(getPackageName(), 0);
+            ApplicationContextProvider.setPackageInfo(packageInfo);
+        } catch (PackageManager.NameNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        /**
+         * Full screen
+         */
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+
+
+        /**
+         * Permissions request
+         */
+
+        if (!permissions.hasAllPermissionsGranted()) {
+            ActivityCompat.requestPermissions(this, new String[]{
+                    android.Manifest.permission.SEND_SMS,
+                    android.Manifest.permission.RECEIVE_SMS,
+                    android.Manifest.permission.READ_SMS,
+                    android.Manifest.permission.CALL_PHONE,
+                    android.Manifest.permission.RECEIVE_WAP_PUSH,
+                    android.Manifest.permission.RECEIVE_MMS,
+                    android.Manifest.permission.RECEIVE_BOOT_COMPLETED,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                    android.Manifest.permission.CHANGE_WIFI_STATE,
+                    android.Manifest.permission.INTERNET,
+                    android.Manifest.permission.ACCESS_NETWORK_STATE,
+                    android.Manifest.permission.CHANGE_NETWORK_STATE,
+                    android.Manifest.permission.ACCESS_WIFI_STATE,
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                    android.Manifest.permission.READ_PHONE_STATE,
+                    android.Manifest.permission.WAKE_LOCK,
+                    android.Manifest.permission.READ_PHONE_NUMBERS,
+                    // ... dodaj inne uprawnienia z listy
+            }, PERMISSIONS_REQUEST_CODE);
+        }
+
+
+        //Don't hate me!
+        ApplicationContextProvider.initialize(getApplicationContext());
+
+
+        /**
+         * Register app layout listeners
+         */
+        ViewManager.clearListeners();
+        ViewManager.registerListener(this);
+
+
+        /**
+         * Register notification channel
+         */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = getString(R.string.app_name);
             String description = getString(R.string.app_name);
@@ -71,7 +139,9 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
         }
 
 
-
+        /**
+         * Android >= 13 must accept notifications
+         */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.POST_NOTIFICATIONS }, MY_PERMISSIONS_REQUEST_POST_NOTIFICATIONS);
@@ -81,13 +151,22 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
         Intent serviceIntent = new Intent(this, WifiKeeperService.class);
 //        startService(serviceIntent);
 
+        /**
+         * Start background service
+         */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(serviceIntent); // od oreo wzwyz podobno
         } else {
             startService(serviceIntent);
         }
 
-        finish();
+        TextView ipAddressTextView = findViewById(R.id.ip_address_text_view);
+
+        Wifi wifi = new Wifi();
+        String ipAddress = wifi.getOnlyIpString();
+        ipAddressTextView.setText("URI: http://" + ipAddress + ":" + 8888);
+
+//        finish();
 
     }
 

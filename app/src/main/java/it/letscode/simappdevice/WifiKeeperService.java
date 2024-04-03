@@ -22,12 +22,8 @@ public class WifiKeeperService extends Service {
         super.onCreate();
         mKeeper = new WifiWakeKeeper(this, "Wifeeper");
 
-        //tu -
+        Bootloader.run();
 
-        System.out.println("Dupa romana");
-
-        HttpPostRequestTask postRequestTask = new HttpPostRequestTask();
-        postRequestTask.startSending();
     }
 
     @Override

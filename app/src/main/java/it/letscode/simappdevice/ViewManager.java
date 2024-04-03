@@ -6,6 +6,10 @@ import java.util.List;
 public class ViewManager {
     private static final List<ViewManagerListener> listeners = new ArrayList<>();
 
+    public static void clearListeners() {
+        listeners.clear();
+    }
+
     public static void registerListener(ViewManagerListener listener) {
         listeners.add(listener);
     }

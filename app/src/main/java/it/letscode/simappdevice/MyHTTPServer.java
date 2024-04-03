@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 public class MyHTTPServer  extends NanoHTTPD {
-    private Context context;
     private final String adminPassword = "lci123password";
 
     private SmsSender smsSender;
@@ -47,9 +46,8 @@ public class MyHTTPServer  extends NanoHTTPD {
     SocketClient socketClient;
 
     private final SystemInfo systemInfo = new SystemInfo();
-    public MyHTTPServer(Context context, int port) {
+    public MyHTTPServer(int port) {
         super(port);
-        this.context = context;
 
         this.smsSender = new SmsSender();
         this.smsReader = new SmsReader();
@@ -147,7 +145,7 @@ public class MyHTTPServer  extends NanoHTTPD {
                     }
                 case "/sms_list": {
                     Map<String, Object> data = new HashMap<>();
-                    data.put("messages", smsReader.getLastMessages(10, context));
+                    data.put("messages", smsReader.getLastMessages(10, ApplicationContextProvider.getApplicationContext()));
                     return loadPage("sms_list.html", data);
                 }
                 case "/debug": {
@@ -313,7 +311,7 @@ public class MyHTTPServer  extends NanoHTTPD {
 
     private Response loadPage(String filename, Map<String, Object> data) {
         try {
-            InputStream fileStream = context.getAssets().open(filename);
+            InputStream fileStream = ApplicationContextProvider.getApplicationContext().getAssets().open(filename);
             InputStreamReader reader = new InputStreamReader(fileStream, StandardCharsets.UTF_8);
 
             MustacheFactory mf = new DefaultMustacheFactory();
@@ -340,25 +338,25 @@ public class MyHTTPServer  extends NanoHTTPD {
      * Load head, footer, etc.
      */
     private String getTemplate(String content) throws IOException {
-        InputStream fileStream = context.getAssets().open("template.html");
+        InputStream fileStream = ApplicationContextProvider.getApplicationContext().getAssets().open("template.html");
         InputStreamReader reader = new InputStreamReader(fileStream, StandardCharsets.UTF_8);
 
         MustacheFactory mf = new DefaultMustacheFactory();
         Mustache mustache = mf.compile(reader, "template");
 
-        Map<String, String> context = new HashMap<>();
-        context.put("content", content);
-        context.put("app_data", this.jsonData());
+        Map<String, String> scope = new HashMap<>();
+        scope.put("content", content);
+        scope.put("app_data", this.jsonData());
 
         StringWriter writer = new StringWriter();
-        mustache.execute(writer, context).flush();
+        mustache.execute(writer, scope).flush();
 
         return writer.toString();
     }
 
     private Response serveStaticFile(String filename, String mime) {
         try {
-            InputStream fileStream = context.getAssets().open(filename);
+            InputStream fileStream = ApplicationContextProvider.getApplicationContext().getAssets().open(filename);
             return newChunkedResponse(Response.Status.OK, mime, fileStream);
         } catch (IOException e) {
             Sentry.captureException(e);
