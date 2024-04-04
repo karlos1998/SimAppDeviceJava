@@ -2,6 +2,7 @@ package it.letscode.simappdevice;
 
 import static java.security.AccessController.getContext;
 
+import static it.letscode.simappdevice.DatabaseManager.getAllHttpRequests;
 import static it.letscode.simappdevice.VersionManager.getVersionJson;
 
 import android.annotation.SuppressLint;
@@ -11,6 +12,7 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -234,6 +236,15 @@ public class MyHTTPServer  extends NanoHTTPD {
                         Map<String, Object> data = new HashMap<>();
                         data.put("trustedNumber", myPreferences.getTrustedNumber());
                         return loadPage("config.html", data);
+                    }
+                }
+
+                case "/http_logs.json": {
+                    try {
+                        return newFixedLengthResponse(Response.Status.OK, "application/json", getAllHttpRequests().toString(4));
+                    } catch (JSONException e) {
+                        System.out.println("http logs - get error");
+                        return newFixedLengthResponse(Response.Status.OK, "application/json", new JSONArray().toString());
                     }
                 }
 

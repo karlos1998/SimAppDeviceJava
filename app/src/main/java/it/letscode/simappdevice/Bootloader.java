@@ -40,6 +40,10 @@ public class Bootloader {
             System.out.println("Serwer działa na porcie: " + port);
 
 
+            /**
+             * Run SQLLite
+             */
+            DatabaseManager.initializeInstance(ApplicationContextProvider.getApplicationContext());
 
 
             MyPreferences myPreferences = new MyPreferences();

@@ -79,6 +79,8 @@ public class OwnHttpClient {
                     final int responseCode = response.code();
                     Log.d(TAG, "Response: (" + url + ") [" + responseCode + "]: " + responseBody);
 
+                    DatabaseManager.addHttpRequest(url, json, responseBody, responseCode);
+
                     JSONObject obj = null;
                     try {
                         obj = new JSONObject(responseBody);
