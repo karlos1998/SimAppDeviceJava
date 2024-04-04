@@ -47,6 +47,8 @@ public class SystemInfo {
         TelephonyManager telephonyManager = (TelephonyManager) ApplicationContextProvider.getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
         List<CellInfo> cellInfoList = telephonyManager.getAllCellInfo();
 
+        if(cellInfoList == null) return null;
+
         for (CellInfo cellInfo : cellInfoList) {
             if (cellInfo instanceof CellInfoGsm) {
                 CellIdentityGsm cellIdentity = ((CellInfoGsm) cellInfo).getCellIdentity();
@@ -82,9 +84,9 @@ public class SystemInfo {
             deviceInfo.put("phoneNumber", getPhoneNumber());
             deviceInfo.put("bts", getBtsJsonData());
 
-            Log.d("DeviceInfo", deviceInfo.toString(4));
+//            Log.d("DeviceInfo", deviceInfo.toString(4));
         } catch (JSONException|NullPointerException e) {
-            Log.d("DeviceInfo", "Json Error!");
+            Log.d("DeviceInfo", "Json Error: " + e.getMessage());
             Sentry.captureException(e);
         }
 
