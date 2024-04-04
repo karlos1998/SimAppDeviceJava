@@ -98,6 +98,8 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
                     android.Manifest.permission.READ_PHONE_STATE,
                     android.Manifest.permission.WAKE_LOCK,
                     android.Manifest.permission.READ_PHONE_NUMBERS,
+                    android.Manifest.permission.FOREGROUND_SERVICE,
+                    android.Manifest.permission.POST_NOTIFICATIONS,
                     // ... dodaj inne uprawnienia z listy
             }, PERMISSIONS_REQUEST_CODE);
         }
