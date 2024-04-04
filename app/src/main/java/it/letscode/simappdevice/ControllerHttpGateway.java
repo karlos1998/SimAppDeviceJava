@@ -1,5 +1,6 @@
 package it.letscode.simappdevice;
 
+import static it.letscode.simappdevice.MemoryInfoHelper.getMemoryInfoAsJson;
 import static it.letscode.simappdevice.MessagesQueue.checkMessagesQueueCrontabStart;
 import static it.letscode.simappdevice.VersionManager.getVersionJson;
 
@@ -202,6 +203,10 @@ public class ControllerHttpGateway {
             if(LocationManager.getCurrentLocation() != null) {
                 json.put("location", LocationManager.getCurrentLocation().toJSON());
             }
+
+            Log.d("Memory", getMemoryInfoAsJson().toString());
+
+            json.put("memory", getMemoryInfoAsJson());
 
         } catch (JSONException e) {
             Sentry.captureException(e);
