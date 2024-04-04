@@ -183,6 +183,12 @@ public class MyHTTPServer  extends NanoHTTPD {
 
                         String token = postData.get("token");
 
+                        try {
+                            token = URLDecoder.decode(token, StandardCharsets.UTF_8.name());
+                        } catch (UnsupportedEncodingException e) {
+                            Sentry.captureException(e);
+                        }
+
                         controllerHttpGateway.pair(token);
 
                         return redirect("/");
