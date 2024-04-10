@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1018053395990",
+    "project_id": "simply-connect-app",
+    "storage_bucket": "simply-connect-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1018053395990:android:012e294fe4db312d365737",
+        "android_client_info": {
+          "package_name": "it.letscode.simappdevice"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgNq0P4Sg2IkCvBzlzkYFnfcYWD0pGn-w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

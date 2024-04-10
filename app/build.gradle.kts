@@ -5,6 +5,10 @@ plugins {
     id("com.android.application")
 
     id("io.sentry.android.gradle") version "4.2.0"
+
+
+    id("com.google.gms.google-services") version "4.4.1" apply false
+//    id("com.google.gms.google-services")
 }
 
 android {
@@ -53,6 +57,8 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.9.0");
     implementation("com.google.android.gms:play-services-location:18.0.0");
 
+    implementation(platform("com.google.firebase:firebase-bom:32.8.0"))
+    implementation("com.google.firebase:firebase-analytics")
 }
 
 sentry {

@@ -36,7 +36,7 @@ import java.io.IOException;
 import android.widget.Toast;
 
 import io.sentry.Sentry;
-
+import com.google.firebase.analytics.FirebaseAnalytics;
 public class MainActivity extends AppCompatActivity implements ViewManagerListener {
 
     private static final int PERMISSIONS_REQUEST_CODE = 1;
@@ -61,6 +61,12 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
+        Bundle params = new Bundle();
+        params.putString("image_name", "test_name");
+        params.putString("full_text", "test 123");
+
+        FirebaseAnalytics.getInstance(this).logEvent("share_image", params);
 
 
         /**
