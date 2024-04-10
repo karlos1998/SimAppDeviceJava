@@ -61,8 +61,9 @@ public class MessagesQueue {
         }
 
         System.out.println("messageInQueueList length: " + messageInQueueList.size());
+        System.out.println("queueLength length: " + queueLength);
 
-        if(queueLength == 0) {
+        if(queueLength <= 0) {
             doWork();
         }
     }
