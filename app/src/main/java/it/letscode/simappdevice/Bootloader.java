@@ -48,7 +48,7 @@ public class Bootloader {
 
             MyPreferences myPreferences = new MyPreferences();
 
-            myPreferences.setContext(getApplicationContext());
+            myPreferences.setContext(ApplicationContextProvider.getApplicationContext());
 
             myPreferences.generateDeviceUuidIfNotExist();
 
