@@ -77,6 +77,19 @@ public class MemoryInfoHelper {
     }
 
 
+    public static long getUsedStorageTotal() {
+        StatFs statFs = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
+
+        long totalBlocks = statFs.getBlockCountLong();
+        long availableBlocks = statFs.getAvailableBlocksLong();
+
+        long blockSize = statFs.getBlockSizeLong();
+
+        return (totalBlocks - availableBlocks) * blockSize;
+
+    }
+
+
     public static JSONObject getMemoryInfoAsJson() {
         try {
 
@@ -90,6 +103,7 @@ public class MemoryInfoHelper {
             memoryInfoJson.put("totalDiskSpace", getTotalDiskSpace());
             memoryInfoJson.put("freeDiskSpace", getFreeDiskSpace());
             memoryInfoJson.put("appUsedSpace", getAppUsedSpace());
+            memoryInfoJson.put("usedStorageTotal", getUsedStorageTotal());
 
             return memoryInfoJson;
         } catch (Exception e) {

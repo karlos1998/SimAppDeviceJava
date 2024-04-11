@@ -53,6 +53,9 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.9.0");
     implementation("com.google.android.gms:play-services-location:18.0.0");
 
+//    implementation("org.apache.sshd:sshd-core:2.6.0")
+//    implementation("org.apache.sshd:sshd-sftp:2.6.0")
+
 }
 
 sentry {

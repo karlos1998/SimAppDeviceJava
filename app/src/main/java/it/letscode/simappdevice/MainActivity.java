@@ -31,11 +31,17 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import android.widget.Toast;
 
 import io.sentry.Sentry;
+
+//import org.apache.sshd.server.SshServer;
+//import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
+//import org.apache.sshd.server.shell.ProcessShellFactory;
 
 public class MainActivity extends AppCompatActivity implements ViewManagerListener {
 
@@ -61,6 +67,18 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
+
+
+//        SshServer sshd = SshServer.setUpDefaultServer();
+//        sshd.setPort(2222); // Zmieniono port na 2222, aby uniknąć konfliktów z domyślnym portem SSH (22), który może wymagać uprawnień roota
+//        sshd.setShellFactory(new ProcessShellFactory());
+//// Dodaj tutaj konfigurację uwierzytelniania
+//        try {
+//            sshd.start();
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
 
 
         /**
