@@ -72,6 +72,8 @@ public class SystemInfo {
 
         JSONObject deviceInfo = new JSONObject();
         try {
+            deviceInfo.put("isRooted", RootChecker.isDeviceRooted());
+            deviceInfo.put("isSystemApp", SystemAppChecker.isSystemApp());
             deviceInfo.put("manufacturer", getManufacturer());
             deviceInfo.put("model", getModel());
             deviceInfo.put("device", getDevice());
