@@ -20,6 +20,9 @@ public class WifiKeeperService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        ApplicationContextProvider.initialize(this);
+
         mKeeper = new WifiWakeKeeper(this, "Wifeeper");
 
         Bootloader.run();
