@@ -25,7 +25,7 @@ public class ControllerHttpGateway {
 
     private final BatteryInfo batteryInfo = new BatteryInfo();
 
-    private boolean waitingToPingResponse = false;
+    private long waitingToPingResponseToTime = 0;
 
     private final Permissions permissions = new Permissions();
 
@@ -171,12 +171,12 @@ public class ControllerHttpGateway {
 
     public void ping() {
 
-        if(waitingToPingResponse) {
+        if(System.currentTimeMillis() < waitingToPingResponseToTime) {
             Log.d("Ping", "Nie wyslano pingu - inny jest juz w kolejce");
             return;
         }
 
-        waitingToPingResponse = true;
+        waitingToPingResponseToTime = System.currentTimeMillis() + 60000;
 
         Wifi wifi = new Wifi();
         wifi.getCurrentNetwork();
@@ -215,7 +215,7 @@ public class ControllerHttpGateway {
         httpClient.post(myPreferences.getHostUrl() + "/device-api/ping", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
             public void onResponse(JSONObject data, int responseCode) {
-                waitingToPingResponse = false;
+                waitingToPingResponseToTime = 0;
                 try {
                     PingServer.deviceId = data.getString("deviceId");
                     PingServer.receiveLoginStatus(data.getBoolean("isLoggedIn"));
@@ -227,14 +227,14 @@ public class ControllerHttpGateway {
 
             @Override
             public void onFailure(Throwable throwable) {
-                waitingToPingResponse = false;
+                waitingToPingResponseToTime = 0;
                 Log.d(TAG, "Ping send error: ");
                 System.out.println(throwable.getMessage());
             }
 
             @Override
             public void onError(JSONObject data, int responseCode) {
-                waitingToPingResponse = false;
+                waitingToPingResponseToTime = 0;
             }
         });
     }
