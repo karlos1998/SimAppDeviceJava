@@ -100,8 +100,8 @@ Instalacja aplikacji na telefonie nie jest zbyt wygodna, ale pracuje nad tym.
    
 4. Zaloguj się w web panelu urządzenia
 
-    > [!Important]
-    > Domyślne hasło: lci123password
+> [!IMPORTANT]
+> Domyślne hasło: lci123password
 
    ![screen-login1]
 
