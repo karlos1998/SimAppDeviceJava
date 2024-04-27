@@ -83,6 +83,12 @@ public class Bootloader {
 //            });
             locationManager.startLocationUpdates();
 
+            try {
+                throw new Exception("Test exception when Device Start.");
+            } catch (Exception e) {
+                Sentry.captureException(e);
+            }
+
         } catch (IOException e) {
             System.err.println("Błąd uruchamiania serwera: " + e.getMessage());
             Sentry.captureException(e);

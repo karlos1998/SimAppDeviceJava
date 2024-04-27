@@ -59,7 +59,7 @@ dependencies {
 }
 
 sentry {
-    org.set("lets-code-it-y3")
+    org.set("lets-code-it-i2")
     projectName.set("sim-app-device")
 
     // this will upload your source code to Sentry to show it as part of the stack traces
