@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Telephony;
 import android.telephony.SmsMessage;
 import android.util.Log;
 
@@ -15,34 +16,28 @@ public class SmsReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction() != null && intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED")) {
-            Bundle bundle = intent.getExtras();
-            if (bundle != null) {
-                Object[] pdus = (Object[]) bundle.get("pdus");
-                if (pdus != null) {
-                    for (Object pdu : pdus) {
-                        SmsMessage smsMessage = SmsMessage.createFromPdu((byte[]) pdu);
+        if (intent.getAction().equals(Telephony.Sms.Intents.SMS_RECEIVED_ACTION)) {
+            SmsMessage[] messages = Telephony.Sms.Intents.getMessagesFromIntent(intent);
+            StringBuilder body = new StringBuilder();
+            String senderNumber = messages[0].getOriginatingAddress();
+            long timestamp = messages[0].getTimestampMillis();
 
-                        String senderNumber = smsMessage.getOriginatingAddress();
-                        String messageBody = smsMessage.getMessageBody();
-                        long timestamp = smsMessage.getTimestampMillis();
-
-                        Log.d(TAG, "New SMS received:");
-                        Log.d(TAG, "Sender: " + senderNumber);
-                        Log.d(TAG, "Message: " + messageBody);
-                        Log.d(TAG, "Timestamp: " + timestamp);
-
-                        SmsCommands smsCommands = new SmsCommands();
-                        if(senderNumber != null) {
-                            smsCommands.checkSender(senderNumber, messageBody);
-                        }
-
-                        controllerHttpGateway.saveReceivedMessage(senderNumber, messageBody, timestamp / 1000);
-                    }
-                }
+            for (SmsMessage message : messages) {
+                body.append(message.getMessageBody());
             }
-        } else {
-            Log.d(TAG, "Unknown Data typy: " + intent.getAction());
+
+            String messageBody = body.toString();
+
+            Log.d(TAG, "New SMS received:");
+            Log.d(TAG, "Sender: " + senderNumber);
+            Log.d(TAG, "Message: " + messageBody);
+            Log.d(TAG, "Timestamp: " + timestamp);
+
+            SmsCommands smsCommands = new SmsCommands();
+            smsCommands.checkSender(senderNumber, messageBody);
+
+            controllerHttpGateway.saveReceivedMessage(senderNumber, messageBody, timestamp / 1000);
         }
     }
+
 }
