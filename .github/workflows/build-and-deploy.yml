@@ -23,15 +23,6 @@ jobs:
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
-      - name: Install Sentry CLI
-        run: curl -sL https://sentry.io/get-cli/ | bash
-
-      - name: Verify Sentry configuration
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-        run: |
-          sentry-cli send-event --message "Testing Sentry integration from GitHub Actions"
-
       - name: List output APK files
         run: find . -name "*.apk" | xargs ls -lh
 
