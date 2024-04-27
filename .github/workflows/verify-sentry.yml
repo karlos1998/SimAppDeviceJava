@@ -15,4 +15,5 @@ jobs:
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
+          export SENTRY_DSN="https://f2d403e771b2a82291c7468e7430cf57@o4507158300590080.ingest.de.sentry.io/4507158303932496"
           sentry-cli send-event --message "Testing Sentry integration from GitHub Actions"
