@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.provider.Settings;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -121,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
                     Manifest.permission.READ_PHONE_NUMBERS,
                     Manifest.permission.FOREGROUND_SERVICE,
                     Manifest.permission.POST_NOTIFICATIONS,
+                    Manifest.permission.READ_CALL_LOG,
                     // ... dodaj inne uprawnienia z listy
             }, PERMISSIONS_REQUEST_CODE);
         }
@@ -171,6 +173,10 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
             SmsSentReceiver smsSentReceiver = new SmsSentReceiver();
             IntentFilter intentFilter = new IntentFilter("SMS_SENT");
             registerReceiver(smsSentReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED);
+
+//            IncomingCallReceiver incomingCallReceiver = new IncomingCallReceiver();
+//            IntentFilter filter = new IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+//            registerReceiver(incomingCallReceiver, filter);
         }
 
 
