@@ -3,6 +3,7 @@ package it.letscode.simappdevice;
 import static it.letscode.simappdevice.ApplicationContextProvider.getApplicationContext;
 import static it.letscode.simappdevice.MessagesQueue.startRemoveOldQueuedSmsLoopHelper;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -16,6 +17,7 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
 
     private static final Permissions permissions = new Permissions();
 
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @SuppressLint({"MissingInflatedId", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,26 +101,26 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
 
         if (!permissions.hasAllPermissionsGranted()) {
             ActivityCompat.requestPermissions(this, new String[]{
-                    android.Manifest.permission.SEND_SMS,
-                    android.Manifest.permission.RECEIVE_SMS,
-                    android.Manifest.permission.READ_SMS,
-                    android.Manifest.permission.CALL_PHONE,
-                    android.Manifest.permission.RECEIVE_WAP_PUSH,
-                    android.Manifest.permission.RECEIVE_MMS,
-                    android.Manifest.permission.RECEIVE_BOOT_COMPLETED,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION,
-                    android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                    android.Manifest.permission.CHANGE_WIFI_STATE,
-                    android.Manifest.permission.INTERNET,
-                    android.Manifest.permission.ACCESS_NETWORK_STATE,
-                    android.Manifest.permission.CHANGE_NETWORK_STATE,
-                    android.Manifest.permission.ACCESS_WIFI_STATE,
-                    android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                    android.Manifest.permission.READ_PHONE_STATE,
-                    android.Manifest.permission.WAKE_LOCK,
-                    android.Manifest.permission.READ_PHONE_NUMBERS,
-                    android.Manifest.permission.FOREGROUND_SERVICE,
-                    android.Manifest.permission.POST_NOTIFICATIONS,
+                    Manifest.permission.SEND_SMS,
+                    Manifest.permission.RECEIVE_SMS,
+                    Manifest.permission.READ_SMS,
+                    Manifest.permission.CALL_PHONE,
+                    Manifest.permission.RECEIVE_WAP_PUSH,
+                    Manifest.permission.RECEIVE_MMS,
+                    Manifest.permission.RECEIVE_BOOT_COMPLETED,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.CHANGE_WIFI_STATE,
+                    Manifest.permission.INTERNET,
+                    Manifest.permission.ACCESS_NETWORK_STATE,
+                    Manifest.permission.CHANGE_NETWORK_STATE,
+                    Manifest.permission.ACCESS_WIFI_STATE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.WAKE_LOCK,
+                    Manifest.permission.READ_PHONE_NUMBERS,
+                    Manifest.permission.FOREGROUND_SERVICE,
+                    Manifest.permission.POST_NOTIFICATIONS,
                     // ... dodaj inne uprawnienia z listy
             }, PERMISSIONS_REQUEST_CODE);
         }
@@ -164,6 +167,13 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
         Intent serviceIntent = new Intent(this, WifiKeeperService.class);
 //        startService(serviceIntent);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            SmsSentReceiver smsSentReceiver = new SmsSentReceiver();
+            IntentFilter intentFilter = new IntentFilter("SMS_SENT");
+            registerReceiver(smsSentReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED);
+        }
+
+
         /**
          * Start background service
          */
@@ -187,6 +197,9 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
     @Override
     protected void onDestroy() {
         ViewManager.unregisterListener(this);
+
+        //todo ? ??
+//        unregisterReceiver(smsSentReceiver);
 
         super.onDestroy();
 //        if (server != null) {
