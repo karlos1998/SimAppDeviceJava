@@ -21,6 +21,8 @@ public class MyPreferences {
 
     private static SharedPreferences prefs;
 
+    private static String hostUrl;
+
     public MyPreferences() {}
 
     public void setContext(Context context) {
@@ -35,6 +37,7 @@ public class MyPreferences {
         ViewManager.changeControllerUrl(url);
 
         SharedPreferences.Editor editor = prefs.edit();
+        hostUrl = url;
         editor.putString(HOST_URL_KEY, url);
         editor.apply();
     }
@@ -46,6 +49,9 @@ public class MyPreferences {
     public String getHostUrl() {
         String url = prefs.getString(HOST_URL_KEY, DEFAULT_HOST_URL);
         ViewManager.changeControllerUrl(url);
+        if(url == null || url.isEmpty()) { //ide podpowiada, ze nie moze byc nullem, a ja mowie, ze raz mi bez tego walnelo nullpointerexception :)
+            return hostUrl;
+        }
         return url;
     }
 
