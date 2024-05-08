@@ -5,6 +5,8 @@ import android.util.Log;
 
 import org.json.JSONArray;
 
+import io.sentry.Sentry;
+
 public class DatabaseManager {
     private static DBHelper dbHelper = null;
 
@@ -16,7 +18,11 @@ public class DatabaseManager {
 
     public static void addHttpRequest(String url, String requestData, String responseData, int responseCode) {
         if (dbHelper != null) {
-            dbHelper.addHttpRequest(url, requestData, responseData, responseCode);
+            try {
+                dbHelper.addHttpRequest(url, requestData, responseData, responseCode);
+            } catch (Exception e) {
+                Sentry.captureException(e);
+            }
         } else {
             Log.d("DatabaseManager", "DBHelper is not initialized.");
         }
