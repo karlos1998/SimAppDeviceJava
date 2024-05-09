@@ -12,6 +12,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import io.sentry.Sentry;
+
 public class DBHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "HttpRequests.db";
@@ -44,21 +46,34 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public void addHttpRequest(String url, String requestData, String responseData, int responseCode) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_URL, url);
-        values.put(COLUMN_REQUEST_DATA, requestData);
-        values.put(COLUMN_RESPONSE_DATA, responseData);
-        values.put(COLUMN_RESPONSE_CODE, responseCode);
+        SQLiteDatabase db = null;
+        try {
+            db = this.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(COLUMN_URL, url);
+            values.put(COLUMN_REQUEST_DATA, requestData);
+            values.put(COLUMN_RESPONSE_DATA, responseData);
+            values.put(COLUMN_RESPONSE_CODE, responseCode);
 
-        db.insert(TABLE_NAME, null, values);
+            db.insert(TABLE_NAME, null, values);
 
-        Log.d("DBHelper", "Insert to " + TABLE_NAME);
+            Log.d("DBHelper", "Insert to " + TABLE_NAME);
 
-        String DELETE_EXCESS = "DELETE FROM " + TABLE_NAME + " WHERE " + COLUMN_ID + " NOT IN (SELECT " + COLUMN_ID + " FROM " + TABLE_NAME + " ORDER BY " + COLUMN_ID + " DESC LIMIT 10)";
-        db.execSQL(DELETE_EXCESS);
+            String DELETE_EXCESS = "DELETE FROM " + TABLE_NAME + " WHERE " + COLUMN_ID + " NOT IN (SELECT " + COLUMN_ID + " FROM " + TABLE_NAME + " ORDER BY " + COLUMN_ID + " DESC LIMIT 10)";
+            db.execSQL(DELETE_EXCESS);
 
-        db.close();
+        } catch (IllegalStateException e) {
+            Log.e("DBHelper", "Wystąpił błąd IllegalStateException: " + e.getMessage());
+            Sentry.captureException(e);
+
+        } catch (Exception e) {
+            Log.e("DBHelper", "Wystąpił inny błąd: " + e.getMessage());
+            Sentry.captureException(e);
+        } finally {
+            if (db != null && db.isOpen()) {
+                db.close();
+            }
+        }
     }
 
     @SuppressLint("Range")

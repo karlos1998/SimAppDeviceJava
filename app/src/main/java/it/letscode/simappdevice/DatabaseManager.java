@@ -18,11 +18,7 @@ public class DatabaseManager {
 
     public static void addHttpRequest(String url, String requestData, String responseData, int responseCode) {
         if (dbHelper != null) {
-            try {
-                dbHelper.addHttpRequest(url, requestData, responseData, responseCode);
-            } catch (Exception e) {
-                Sentry.captureException(e);
-            }
+            dbHelper.addHttpRequest(url, requestData, responseData, responseCode);
         } else {
             Log.d("DatabaseManager", "DBHelper is not initialized.");
         }
