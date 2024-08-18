@@ -9,6 +9,7 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
@@ -26,6 +27,19 @@ public class WifiKeeperService extends Service {
         mKeeper = new WifiWakeKeeper(this, "Wifeeper");
 
         Bootloader.run();
+
+        /**
+         * from android 10 you have to confirm your consent to collect information whether the SMS was sent correctly
+         */
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            SmsSentReceiver smsSentReceiver = new SmsSentReceiver();
+            IntentFilter intentFilter = new IntentFilter("SMS_SENT");
+            registerReceiver(smsSentReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED);
+
+//            IncomingCallReceiver incomingCallReceiver = new IncomingCallReceiver();
+//            IntentFilter filter = new IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+//            registerReceiver(incomingCallReceiver, filter);
+        }
 
     }
 

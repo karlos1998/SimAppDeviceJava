@@ -166,28 +166,32 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
             }
         }
 
-        Intent serviceIntent = new Intent(this, WifiKeeperService.class);
-//        startService(serviceIntent);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            SmsSentReceiver smsSentReceiver = new SmsSentReceiver();
-            IntentFilter intentFilter = new IntentFilter("SMS_SENT");
-            registerReceiver(smsSentReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED);
-
-//            IncomingCallReceiver incomingCallReceiver = new IncomingCallReceiver();
-//            IntentFilter filter = new IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
-//            registerReceiver(incomingCallReceiver, filter);
-        }
+        /**
+         * from android 10 you have to confirm your consent to collect information whether the SMS was sent correctly
+         */
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//            SmsSentReceiver smsSentReceiver = new SmsSentReceiver();
+//            IntentFilter intentFilter = new IntentFilter("SMS_SENT");
+//            registerReceiver(smsSentReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED);
+//
+////            IncomingCallReceiver incomingCallReceiver = new IncomingCallReceiver();
+////            IntentFilter filter = new IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+////            registerReceiver(incomingCallReceiver, filter);
+//        }
 
 
         /**
          * Start background service
          */
+        Intent serviceIntent = new Intent(this, WifiKeeperService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(serviceIntent); // od oreo wzwyz podobno
         } else {
             startService(serviceIntent);
         }
+
+
 
         TextView ipAddressTextView = findViewById(R.id.ip_address_text_view);
 
