@@ -1,7 +1,5 @@
 package it.letscode.simappdevice;
 
-import static androidx.core.content.ContextCompat.getSystemService;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -14,6 +12,7 @@ import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.provider.Settings;
 
 import androidx.core.app.ActivityCompat;
 
@@ -28,26 +27,17 @@ import io.sentry.Sentry;
 
 public class SystemInfo {
 
-
     public JSONArray getBtsJsonData() {
-
         JSONArray data = new JSONArray();
 
-        if (ActivityCompat.checkSelfPermission(ApplicationContextProvider.getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+        if (ActivityCompat.checkSelfPermission(ApplicationContextProvider.getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return data;
         }
 
         TelephonyManager telephonyManager = (TelephonyManager) ApplicationContextProvider.getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
         List<CellInfo> cellInfoList = telephonyManager.getAllCellInfo();
 
-        if(cellInfoList == null) return null;
+        if (cellInfoList == null) return null;
 
         for (CellInfo cellInfo : cellInfoList) {
             if (cellInfo instanceof CellInfoGsm) {
@@ -55,7 +45,7 @@ public class SystemInfo {
                 int cid = cellIdentity.getCid(); // ID stacji bazowej
                 int lac = cellIdentity.getLac(); // Lokalny kod obszaru
                 Log.d("NetworkInfo", "BTS ID: " + cid + ", LAC: " + lac);
-                data.put(new JSONObject(){{
+                data.put(new JSONObject() {{
                     try {
                         put("lac", lac);
                         put("cid", cid);
@@ -68,8 +58,8 @@ public class SystemInfo {
 
         return data;
     }
-    public JSONObject getJsonDetails() {
 
+    public JSONObject getJsonDetails() {
         JSONObject deviceInfo = new JSONObject();
         try {
             deviceInfo.put("isRooted", RootChecker.isDeviceRooted());
@@ -84,10 +74,10 @@ public class SystemInfo {
             deviceInfo.put("sdkVersion", getSdkVersion());
             deviceInfo.put("operatorName", getOperatorName());
             deviceInfo.put("phoneNumber", getPhoneNumber());
+            deviceInfo.put("serialNumber", getSerialNumber());
+            deviceInfo.put("androidId", getAndroidId());
             deviceInfo.put("bts", getBtsJsonData());
-
-//            Log.d("DeviceInfo", deviceInfo.toString(4));
-        } catch (JSONException|NullPointerException e) {
+        } catch (JSONException | NullPointerException e) {
             Log.d("DeviceInfo", "Json Error: " + e.getMessage());
             Sentry.captureException(e);
         }
@@ -140,14 +130,30 @@ public class SystemInfo {
         if (ActivityCompat.checkSelfPermission(ApplicationContextProvider.getApplicationContext(), Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
             List<SubscriptionInfo> subscriptionInfos = subscriptionManager.getActiveSubscriptionInfoList();
             for (SubscriptionInfo subscriptionInfo : subscriptionInfos) {
-//                numbers.add(subscriptionInfo.getNumber());
                 int subscriptionId = subscriptionInfo.getSubscriptionId();
                 TelephonyManager specificTelephonyManager = (TelephonyManager) ApplicationContextProvider.getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
                 numbers.add(specificTelephonyManager.getLine1Number());
-
             }
         }
         return String.join(", ", numbers);
     }
 
+    @SuppressLint("HardwareIds")
+    private String getSerialNumber() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try {
+                return Build.getSerial();
+            } catch (SecurityException e) {
+                return null;
+            }
+        } else {
+            return Build.SERIAL;
+        }
+    }
+
+    @SuppressLint("HardwareIds")
+    private String getAndroidId() {
+        return Settings.Secure.getString(ApplicationContextProvider.getApplicationContext().getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+    }
 }
