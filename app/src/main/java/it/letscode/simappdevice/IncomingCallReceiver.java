@@ -3,80 +3,61 @@ package it.letscode.simappdevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioTrack;
+import android.telecom.TelecomManager;
+import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.KeyEvent;
-
-import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class IncomingCallReceiver extends BroadcastReceiver {
     private static final String TAG = "IncomingCallReceiver";
-    private static final String SECONDARY_NUMBER = "+48606816819";  // Numer do zadzwonienia po odebraniu
-    private static final int DELAY_MILLIS = 10000;  // Opóźnienie przed dodaniem kolejnej osoby (10 sekund)
-    private AudioTrack audioTrack;
-    private boolean isPlaying = false;
+    private static final long TIME_LIMIT = 2000; // Czas w milisekundach
 
-    ControllerHttpGateway controllerHttpGateway = new ControllerHttpGateway();
+    private static long lastCallTime = 0;
+    private static String lastIncomingNumber = "";
+
+    private static long lastCallEndedTime = 0;
+
+    private static long lastAnsweredTime = 0;
 
     @Override
     public void onReceive(Context context, Intent intent) {
+
         if (intent.getAction() != null && intent.getAction().equals("android.intent.action.PHONE_STATE")) {
             String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
-            if (state != null) {
-                String incomingNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
-                if (state.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
+            final String incomingNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
+
+            if(incomingNumber == null) return;
+
+            if (state == null) return;
+
+            long currentTime = System.currentTimeMillis();
+
+            Log.d(TAG, "State: " + state);
+
+            if (state.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
+                if (!incomingNumber.equals(lastIncomingNumber) || (currentTime - lastCallTime > TIME_LIMIT)) {
                     Log.d(TAG, "Incoming call from: " + incomingNumber);
-//                    answerCall();
-//                    scheduleSecondaryCall();
-                } else if (state.equals(TelephonyManager.EXTRA_STATE_IDLE)) {
-                    Log.d(TAG, "Call ended: " + incomingNumber);
+
+                    lastIncomingNumber = incomingNumber;
+                    lastCallTime = currentTime;
+
+                    CallManager.ringingCall(context, incomingNumber);
                 }
-                controllerHttpGateway.sendIncomingCall(incomingNumber, state);
+            } else if (state.equals(TelephonyManager.EXTRA_STATE_IDLE)) {
+                if(currentTime - lastCallEndedTime > TIME_LIMIT) {
+                    Log.d(TAG, "Call ended for number: " + incomingNumber);
+
+                    lastCallEndedTime = currentTime;
+
+                    CallManager.callEnded(incomingNumber);
+                }
+            } else if (state.equals(TelephonyManager.EXTRA_STATE_OFFHOOK)) {
+                if(currentTime - lastAnsweredTime > TIME_LIMIT) {
+                    CallManager.callAnswered(incomingNumber);
+
+                    lastAnsweredTime = currentTime;
+                }
             }
         }
-    }
-
-    private void answerCall() {
-        try {
-            Log.d(TAG, "Answering call...");
-            Runtime.getRuntime().exec("su -c input keyevent " + KeyEvent.KEYCODE_HEADSETHOOK);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void scheduleSecondaryCall() {
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    Log.d(TAG, "Calling secondary number: " + SECONDARY_NUMBER);
-                    Runtime.getRuntime().exec("su -c am start -a android.intent.action.CALL -d tel:" + SECONDARY_NUMBER);
-                    mergeCalls();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, DELAY_MILLIS);
-    }
-
-    private void mergeCalls() {
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    Log.d(TAG, "Merge calls");
-                    Runtime.getRuntime().exec("su -c input keyevent " + KeyEvent.KEYCODE_HEADSETHOOK);
-                    mergeCalls();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, DELAY_MILLIS * 3);
     }
 }

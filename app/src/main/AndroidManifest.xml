@@ -61,7 +61,9 @@
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
+    <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS"/>
 
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
 
 <!--    android:permission="android.permission.SYSTEM_ALERT_WINDOW"-->
     <application
@@ -140,10 +142,15 @@
             android:name=".MyInCallService"
             android:exported="true"
             android:permission="android.permission.BIND_INCALL_SERVICE">
+            <meta-data
+                android:name="android.telecom.IN_CALL_SERVICE_UI"
+                android:value="true" />
             <intent-filter>
-                <action android:name="android.telecom.InCallService"/>
+                <action android:name="android.telecom.InCallService" />
             </intent-filter>
+
         </service>
+
 
     
     <!-- Required: set your sentry.io project identifier (DSN) -->

@@ -135,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
                     Manifest.permission.MANAGE_OWN_CALLS,
                     Manifest.permission.SYSTEM_ALERT_WINDOW,
+                    Manifest.permission.ANSWER_PHONE_CALLS,
                     // ... dodaj inne uprawnienia z listy
             }, PERMISSIONS_REQUEST_CODE);
         }
