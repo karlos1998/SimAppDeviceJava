@@ -420,6 +420,15 @@ public class ControllerHttpGateway {
     }
 
     public void sendIncomingCall(String phoneNumber, String status) {
+        this.sendIncomingCall(phoneNumber, status, new ControllerHttpGateway.ResponseCallback() {
+            @Override
+            public void onResponse(JSONObject data, int responseCode) {}
+            @Override
+            public void onFailure(Throwable throwable) {}
+        });
+    }
+
+    public void sendIncomingCall(String phoneNumber, String status, ResponseCallback responseCallback) {
 
         JSONObject json = new JSONObject();
         try {
@@ -431,7 +440,7 @@ public class ControllerHttpGateway {
         httpClient.put(myPreferences.getHostUrl() + "/device-api/incoming-calls", json.toString(), new OwnHttpClient.HttpResponseCallback() {
             @Override
             public void onResponse(JSONObject data, int responseCode) {
-
+                responseCallback.onResponse(data, responseCode);
             }
 
             @Override

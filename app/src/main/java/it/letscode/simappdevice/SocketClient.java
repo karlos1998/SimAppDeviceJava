@@ -1,5 +1,7 @@
 package it.letscode.simappdevice;
 
+import static it.letscode.simappdevice.CallManager.rejectCall;
+
 import android.util.Log;
 import android.view.View;
 
@@ -177,6 +179,10 @@ public class SocketClient {
             }
         });
 
+
+
+
+
         /**
          * Testowy listener prywatnego kanalu
          */
@@ -187,15 +193,6 @@ public class SocketClient {
                 Log.d("Pusher", event.getData());
 
                 MessagesQueue.check();
-//                try {
-//                    JSONObject obj = new JSONObject(event.getData());
-//
-//                    SmsSender smsSender = new SmsSender();
-//                    smsSender.sendSms(obj.getString("phoneNumber"), obj.getString("text"), obj.getInt("messageId"));
-//
-//                } catch (JSONException e) {
-//                    throw new RuntimeException(e);
-//                }
             }
 
             @Override
@@ -207,6 +204,26 @@ public class SocketClient {
             @Override
             public void onAuthenticationFailure(String message, Exception e) {
                 // Obsługa błędu autoryzacji
+                System.err.println("Błąd autoryzacji: " + message);
+            }
+        });
+
+        privateChannel.bind("App\\Events\\ChangeCallStatus", new PrivateChannelEventListener() {
+            @Override
+            public void onEvent(PusherEvent event) {
+                System.out.print("New Event from laravel: ChangeCallStatus ");
+                //TODO- w obiekcie powinien byc status na jaki zmienic, ale na razie obslugujemy po prostu ze zawsze jest to zamkniecie polaczenia
+
+                rejectCall(ApplicationContextProvider.getApplicationContext());
+            }
+
+            @Override
+            public void onSubscriptionSucceeded(String channelName) {
+                Log.d("Pusher", "Subskrypcja kanału " + channelName + " zakończona sukcesem");
+            }
+
+            @Override
+            public void onAuthenticationFailure(String message, Exception e) {
                 System.err.println("Błąd autoryzacji: " + message);
             }
         });
