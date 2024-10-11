@@ -26,12 +26,11 @@ public class CallManager {
 
             Thread.sleep(200);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && ActivityCompat.checkSelfPermission(context, Manifest.permission.ANSWER_PHONE_CALLS) == PackageManager.PERMISSION_GRANTED) {
-                telecomManager.acceptRingingCall();
-            }
-
             if(RootChecker.isDeviceRooted()) {
                 Runtime.getRuntime().exec("su -c input keyevent " + KeyEvent.KEYCODE_HEADSETHOOK);
+            }
+            else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && ActivityCompat.checkSelfPermission(context, Manifest.permission.ANSWER_PHONE_CALLS) == PackageManager.PERMISSION_GRANTED) {
+                telecomManager.acceptRingingCall();
             }
 
         } catch (Exception e) {
@@ -75,12 +74,12 @@ public class CallManager {
         try {
             TelecomManager telecomManager = (TelecomManager) context.getSystemService(Context.TELECOM_SERVICE);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && ActivityCompat.checkSelfPermission(context, Manifest.permission.ANSWER_PHONE_CALLS) == PackageManager.PERMISSION_GRANTED) {
-                telecomManager.endCall();
-            }
 
             if(RootChecker.isDeviceRooted()) {
                 Runtime.getRuntime().exec("su -c input keyevent " + KeyEvent.KEYCODE_ENDCALL);
+            }
+            else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && ActivityCompat.checkSelfPermission(context, Manifest.permission.ANSWER_PHONE_CALLS) == PackageManager.PERMISSION_GRANTED) {
+                telecomManager.endCall();
             }
 
         } catch (Exception e) {

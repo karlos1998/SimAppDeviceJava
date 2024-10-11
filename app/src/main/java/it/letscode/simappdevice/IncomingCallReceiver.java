@@ -23,6 +23,9 @@ public class IncomingCallReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         if (intent.getAction() != null && intent.getAction().equals("android.intent.action.PHONE_STATE")) {
+
+            ApplicationContextProvider.initialize(context);
+
             String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
             final String incomingNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
 
