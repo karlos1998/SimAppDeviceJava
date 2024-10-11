@@ -72,6 +72,14 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
 
         setContentView(R.layout.activity_main);
 
+//        if (!Settings.canDrawOverlays(this)) {
+//            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+//                    Uri.parse("package:" + getPackageName()));
+//            startActivityForResult(intent, 100);
+//        } else {
+//            Toast.makeText(this, "Uprawnienie przyznane!", Toast.LENGTH_SHORT).show();
+//        }
+
 
 
 //        SshServer sshd = SshServer.setUpDefaultServer();
@@ -123,10 +131,14 @@ public class MainActivity extends AppCompatActivity implements ViewManagerListen
                     Manifest.permission.FOREGROUND_SERVICE,
                     Manifest.permission.POST_NOTIFICATIONS,
                     Manifest.permission.READ_CALL_LOG,
+                    Manifest.permission.RECORD_AUDIO,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.MANAGE_OWN_CALLS,
+                    Manifest.permission.SYSTEM_ALERT_WINDOW,
+                    Manifest.permission.ANSWER_PHONE_CALLS,
                     // ... dodaj inne uprawnienia z listy
             }, PERMISSIONS_REQUEST_CODE);
         }
-
 
         /**
          * Don't hate me!
