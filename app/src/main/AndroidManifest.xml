@@ -109,7 +109,15 @@
             android:exported="true"
             android:permission="android.permission.BROADCAST_SMS">
             <intent-filter>
-                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+                <action android:name="SMS_DELIVER_ACTION" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".SmsDeliveryReceiver"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_DELIVER" />
             </intent-filter>
         </receiver>
 
