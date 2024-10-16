@@ -91,12 +91,12 @@ public class MyHTTPServer  extends NanoHTTPD {
              */
             InputStream inputStream = session.getInputStream();
             ByteArrayOutputStream result = new ByteArrayOutputStream();
-            byte[] buffer = new byte[32];
+            byte[] buffer = new byte[1024];
             int length;
             try {
                 while ((length = inputStream.read(buffer)) != -1) {
                     result.write(buffer, 0, length);
-                    if(length < 32) break;
+                    if(length < 1024) break;
                 }
             } catch (IOException e) {
                 Sentry.captureException(e);
