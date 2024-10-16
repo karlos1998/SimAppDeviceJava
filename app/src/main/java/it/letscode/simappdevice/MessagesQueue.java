@@ -1,5 +1,8 @@
 package it.letscode.simappdevice;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,6 +32,10 @@ public class MessagesQueue {
     private static final Map<Integer, Date> messageInQueueMap = new HashMap<>();
 
     private static int queueLength = 0;
+
+
+    private static boolean isDelayActive = false; // flaga sprawdzająca, czy opóźnienie jest aktywne
+
 
     public static void check() {
         if(queueLength > 0) {
@@ -89,13 +96,13 @@ public class MessagesQueue {
         queueLength--;
         messageInQueueMap.remove(messageId);
 
-        if(queueLength <= 0) {
-            try {
-                Thread.sleep(20 * 1000);
-            } catch (InterruptedException ignore) {
-            } finally {
+        if (queueLength <= 0 && !isDelayActive) {
+            isDelayActive = true;
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 check();
-            }
+                isDelayActive = false;
+            }, 20 * 1000);
         }
     }
 
