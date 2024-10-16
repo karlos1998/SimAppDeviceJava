@@ -91,11 +91,12 @@ public class MyHTTPServer  extends NanoHTTPD {
              */
             InputStream inputStream = session.getInputStream();
             ByteArrayOutputStream result = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[32];
             int length;
             try {
                 while ((length = inputStream.read(buffer)) != -1) {
                     result.write(buffer, 0, length);
+                    if(length < 32) break;
                 }
             } catch (IOException e) {
                 Sentry.captureException(e);
@@ -117,15 +118,17 @@ public class MyHTTPServer  extends NanoHTTPD {
             System.out.println("POST body: " + postBody);
         }
 
-        Map<String, String> params = new HashMap<>();
-        try {
-            session.parseBody(params);
-            System.out.println("get query: " + session.getQueryParameterString());
-        } catch (IOException | ResponseException e) {
-            Sentry.captureException(e);
-            e.printStackTrace();
-        }
-
+//        Map<String, String> params = new HashMap<>();
+//        try {
+//            session.parseBody(params);
+//            System.out.println("get query: " + session.getQueryParameterString());
+//        } catch (IOException | ResponseException e) {
+//            Sentry.captureException(e);
+//            e.printStackTrace();
+//        }
+//
+//        System.out.println("params");
+//        System.out.println(params);
 
 
         if(isLogged) {
